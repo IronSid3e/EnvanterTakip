@@ -1,4 +1,4 @@
-readme_content = """# Şua Tarım Envanter Takip Sistemi
+# Şua Tarım Envanter Takip Sistemi
 
 Şua Tarım bünyesindeki hayvancılık ve perakende operasyonlarını dijitalleştirmek için geliştirilen uçtan uca (full-stack) envanter yönetim çözümü.
 
