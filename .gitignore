@@ -26,8 +26,10 @@ yarn-error.log*
 *.p12
 *.key
 *.mobileprovision
-.elctron/
+.electron/
 web-build/
+ios/
+android/
 
 # --- [ IDEs & Editors ] ---
 .vscode/

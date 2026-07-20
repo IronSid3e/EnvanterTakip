@@ -1,6 +1,0 @@
-@EnvanterTakip.API_HostAddress = http://localhost:5279
-
-GET {{EnvanterTakip.API_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
