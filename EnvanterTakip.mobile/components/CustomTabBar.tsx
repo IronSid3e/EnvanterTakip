@@ -1,71 +1,80 @@
 import React from "react";
-import { View, StyleSheet, Platform, Pressable } from "react-native";
+import { View, StyleSheet, Platform, Pressable, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 
-export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
-  const tabOrder = ["index", "scanner", "add-product"];
-  const tabs = tabOrder.map(
-    (name) => state.routes.find((r) => r.name === name)!,
-  );
+const TAB_CONFIG: {
+  [key: string]: {
+    icon: keyof typeof Ionicons.glyphMap;
+    iconFocused: keyof typeof Ionicons.glyphMap;
+    label: string;
+  };
+} = {
+  dashboard: { icon: "grid-outline", iconFocused: "grid", label: "Anasayfa" },
+  index: { icon: "list-outline", iconFocused: "list", label: "Ürünler" },
+  "add-product": {
+    icon: "add-circle-outline",
+    iconFocused: "add-circle",
+    label: "Ekle",
+  },
+  sales: { icon: "receipt-outline", iconFocused: "receipt", label: "Satışlar" },
+};
 
-  // Tarayıcı butonunu barın dışında (üst katmanda) render edebilmek için buluyoruz
+export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
+  const tabOrder = ["dashboard", "index", "scanner", "add-product", "sales"];
+  const tabs = tabOrder
+    .map((name) => state.routes.find((r) => r.name === name)!)
+    .filter(Boolean);
+
   const scannerRoute = tabs.find((r) => r.name === "scanner");
+  const leftTabs = tabs.filter((r) => r.name !== "scanner").slice(0, 2);
+  const rightTabs = tabs.filter((r) => r.name !== "scanner").slice(2);
+
+  const renderTab = (route: (typeof tabs)[0]) => {
+    const config = TAB_CONFIG[route.name];
+    if (!config) return null;
+    const isFocused = state.index === state.routes.indexOf(route);
+
+    return (
+      <Pressable
+        key={route.name}
+        style={styles.tab}
+        onPress={() => navigation.navigate(route.name)}
+      >
+        {({ pressed }) => (
+          <View
+            style={[
+              styles.iconContainer,
+              { transform: [{ scale: pressed ? 0.85 : 1 }] },
+            ]}
+          >
+            <Ionicons
+              name={isFocused ? config.iconFocused : config.icon}
+              size={24}
+              color={isFocused ? "#2ecc71" : "#95a5a6"}
+            />
+            <Text
+              style={[
+                styles.tabLabel,
+                { color: isFocused ? "#2ecc71" : "#95a5a6" },
+              ]}
+            >
+              {config.label}
+            </Text>
+          </View>
+        )}
+      </Pressable>
+    );
+  };
 
   return (
     <View style={styles.container} pointerEvents="box-none">
-      {/* 1. Kısım: Arka Plandaki Kusursuz Yuvarlak (Hap) Bar */}
       <View style={styles.bar}>
-        {tabs.map((route, i) => {
-          const isCenter = route.name === "scanner";
-          const isFocused = state.index === state.routes.indexOf(route);
-          const color = isFocused ? "#2ecc71" : "#95a5a6";
-
-          const onPress = () => {
-            navigation.navigate(route.name);
-          };
-
-          // Merkez için sadece boşluk ayırıyoruz. Böylece barın sınırları ihlal edilmiyor.
-          if (isCenter) {
-            return <View key={route.name} style={styles.centerPlaceholder} />;
-          }
-
-          // Sağ ve Sol Sekmeler
-          return (
-            <Pressable key={route.name} style={styles.tab} onPress={onPress}>
-              {({ pressed }) => (
-                <View
-                  style={[
-                    styles.iconContainer,
-                    { transform: [{ scale: pressed ? 0.85 : 1 }] },
-                  ]}
-                >
-                  <Ionicons
-                    name={
-                      i === 0
-                        ? isFocused
-                          ? "list"
-                          : "list-outline"
-                        : isFocused
-                          ? "add-circle"
-                          : "add-circle-outline"
-                    }
-                    size={26}
-                    color={color}
-                  />
-                  {isFocused && (
-                    <View
-                      style={[styles.activeDot, { backgroundColor: color }]}
-                    />
-                  )}
-                </View>
-              )}
-            </Pressable>
-          );
-        })}
+        {leftTabs.map(renderTab)}
+        <View style={styles.centerPlaceholder} />
+        {rightTabs.map(renderTab)}
       </View>
 
-      {/* 2. Kısım: Taşan Merkez Butonu (Bağımsız Konumlandırıldı) */}
       {scannerRoute && (
         <View style={styles.absoluteCenterContainer} pointerEvents="box-none">
           <Pressable onPress={() => navigation.navigate("scanner")}>
@@ -77,7 +86,7 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
                   { transform: [{ scale: pressed ? 0.9 : 1 }] },
                 ]}
               >
-                <Ionicons name="scan-outline" size={30} color="#fff" />
+                <Ionicons name="scan-outline" size={28} color="#fff" />
               </View>
             )}
           </Pressable>
@@ -91,18 +100,17 @@ const styles = StyleSheet.create({
   container: {
     position: "absolute",
     bottom: Platform.OS === "ios" ? 30 : 20,
-    left: 20,
-    right: 20,
+    left: 16,
+    right: 16,
   },
   bar: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#ffffff",
     width: "100%",
-    height: 70,
-    borderRadius: 35, // Tam yuvarlak hap tasarımı (Artık taşan çocuk eleman yok)
-    paddingHorizontal: 10,
-    // Gölgeler sorunsuz bir şekilde oluşturulacak
+    height: 64,
+    borderRadius: 32,
+    paddingHorizontal: 6,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.08,
@@ -110,7 +118,7 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   centerPlaceholder: {
-    flex: 1, // Barın ortasındaki boşluğu eşit dağıtmak için
+    flex: 1,
   },
   tab: {
     flex: 1,
@@ -122,19 +130,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  activeDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    marginTop: 4,
-    position: "absolute",
-    bottom: -10,
+  tabLabel: {
+    fontSize: 10,
+    marginTop: 2,
+    fontWeight: "500",
   },
   absoluteCenterContainer: {
     position: "absolute",
-    top: -25, // Barın üzerine doğru çıkarır
+    top: -28,
     left: "50%",
-    marginLeft: -32, // Buton genişliğinin (64) tam yarısı kadar sola çekip merkeze oturtur
+    marginLeft: -32,
     alignItems: "center",
     justifyContent: "center",
   },

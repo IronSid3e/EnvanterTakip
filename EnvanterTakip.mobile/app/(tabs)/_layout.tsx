@@ -10,9 +10,11 @@ export default function TabLayout() {
         headerShown: false,
       }}
     >
+      <Tabs.Screen name="dashboard" />
       <Tabs.Screen name="index" />
       <Tabs.Screen name="scanner" />
       <Tabs.Screen name="add-product" />
+      <Tabs.Screen name="sales" />
     </Tabs>
   );
 }

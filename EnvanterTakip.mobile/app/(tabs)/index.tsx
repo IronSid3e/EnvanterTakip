@@ -18,6 +18,7 @@ import {
   Product,
   ApiResponse,
   PaginatedResponse,
+  DashboardStats,
   apiGet,
 } from "@/config/api";
 
@@ -29,6 +30,7 @@ export default function HomeScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
   const [totalCount, setTotalCount] = useState(0);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
 
   const fetchProducts = async () => {
     try {
@@ -64,10 +66,22 @@ export default function HomeScreen() {
     }
   };
 
+  const fetchStats = async () => {
+    try {
+      const result = await apiGet<DashboardStats>(ENDPOINTS.salesDashboard);
+      if (result.success && result.data) {
+        setStats(result.data);
+      }
+    } catch (error) {
+      console.error("İstatistikler alınamadı:", error);
+    }
+  };
+
   useFocusEffect(
     useCallback(() => {
       fetchProducts();
       fetchCategories();
+      fetchStats();
     }, [search, selectedCategory])
   );
 
@@ -160,6 +174,35 @@ export default function HomeScreen() {
           <Ionicons name="refresh" size={22} color="#333" />
         </TouchableOpacity>
       </View>
+
+      {/* İstatistikler */}
+      {stats && (
+        <View style={styles.statsBar}>
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>{stats.totalProducts}</Text>
+            <Text style={styles.statLabel}>Ürün</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>{stats.totalSales}</Text>
+            <Text style={styles.statLabel}>Satış</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={[styles.statValue, { color: "#27ae60" }]}>
+              {stats.totalRevenue.toLocaleString("tr-TR")}
+            </Text>
+            <Text style={styles.statLabel}>Gelir (TL)</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={[styles.statValue, { color: stats.lowStockProducts > 0 ? "#e74c3c" : "#333" }]}>
+              {stats.lowStockProducts}
+            </Text>
+            <Text style={styles.statLabel}>Düşük Stok</Text>
+          </View>
+        </View>
+      )}
 
       {/* Arama Çubuğu */}
       <View style={styles.searchContainer}>
@@ -278,6 +321,24 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  statsBar: {
+    flexDirection: "row",
+    backgroundColor: "#fff",
+    marginHorizontal: 15,
+    marginTop: 12,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+  },
+  statItem: { flex: 1, alignItems: "center" },
+  statValue: { fontSize: 17, fontWeight: "bold", color: "#2c3e50" },
+  statLabel: { fontSize: 11, color: "#95a5a6", marginTop: 2 },
+  statDivider: { width: 1, backgroundColor: "#f0f0f0" },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",

@@ -12,13 +12,15 @@ import {
   Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useLocalSearchParams } from "expo-router";
 import { ENDPOINTS, apiGet, apiPost } from "@/config/api";
 import { CameraView } from "expo-camera";
 
 export default function AddProductScreen() {
+  const params = useLocalSearchParams<{ barcode?: string }>();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [barcode, setBarcode] = useState("");
+  const [barcode, setBarcode] = useState(params.barcode || "");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
   const [category, setCategory] = useState("");
@@ -29,6 +31,12 @@ export default function AddProductScreen() {
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    if (params.barcode) {
+      setBarcode(params.barcode);
+    }
+  }, [params.barcode]);
 
   const fetchCategories = async () => {
     try {
@@ -109,7 +117,15 @@ export default function AddProductScreen() {
           facing="back"
           onBarcodeScanned={handleBarcodeScanned}
           barcodeScannerSettings={{
-            barcodeTypes: ["qr", "ean13", "ean8", "code39", "code128", "upc_a", "upc_e"],
+            barcodeTypes: [
+              "qr",
+              "ean13",
+              "ean8",
+              "code39",
+              "code128",
+              "upc_a",
+              "upc_e",
+            ],
           }}
         />
         <TouchableOpacity
@@ -136,7 +152,10 @@ export default function AddProductScreen() {
           <Text style={styles.headerTitle}>Yeni Ürün Ekle</Text>
         </View>
 
-        <ScrollView style={styles.form} contentContainerStyle={styles.formContent}>
+        <ScrollView
+          style={styles.form}
+          contentContainerStyle={styles.formContent}
+        >
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Barkod</Text>
             <View style={styles.barcodeRow}>
@@ -271,7 +290,12 @@ const styles = StyleSheet.create({
   form: { flex: 1 },
   formContent: { padding: 20, paddingBottom: 120 },
   inputGroup: { marginBottom: 16 },
-  inputLabel: { fontSize: 14, fontWeight: "600", color: "#333", marginBottom: 6 },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 6,
+  },
   input: {
     borderWidth: 1,
     borderColor: "#ddd",

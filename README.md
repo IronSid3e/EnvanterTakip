@@ -1,6 +1,6 @@
 # Şua Tarım Envanter Takip Sistemi
 
-Şua Tarım bünyesindeki hayvancılık ve perakende operasyonlarını dijitalleştirmek için geliştirilen full-stack envanter yönetim çözümü. Çiftlik ve şube arasındaki stok akışını manuel takipten kurtarıp dijital ortama taşır.
+Herhangi bir satış firmasının barkodla ürün takibi yapabileceği genel bir envanter yönetim sistemidir.
 
 ## Yapılan İşler
 
@@ -46,8 +46,8 @@ EnvanterTakip/
 ```bash
 cd EnvanterTakip.API
 
-# Veritabanı bağlantısını ayarla (appsettings.json)
-# Host=localhost;Database=EnvanterDb
+# Veritabanı bağlantısını User Secrets'a kaydet
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Database=EnvanterDb;Username=postgres;Password=SENIN_SIFREN"
 
 # Migration'ları uygula
 dotnet ef database update
@@ -128,6 +128,5 @@ Migrations/      → EF Core migration'ları
 
 ## Notlar
 
-- Root dizinde `node_modules` veya `package.json` bulunmamaktadır. Her sub-projenin kendi bağımlılıkları vardır.
 - `ios/` ve `android/` dizinleri `.gitignore`'dadır, `expo prebuild` ile oluşturulur.
-- Veritabanı credential'ları `appsettings.json`'da tutulmaktadır (geliştirme amaçlı).
+- Veritabanı credential'ları User Secrets'ta tutulur (`dotnet user-secrets`).

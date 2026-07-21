@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { CameraView, Camera } from "expo-camera";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import {
   ENDPOINTS,
   Product,
@@ -22,6 +23,7 @@ import {
 } from "@/config/api";
 
 export default function Scanner() {
+  const router = useRouter();
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanned, setScanned] = useState(false);
   const [scanning, setScanning] = useState(true);
@@ -37,7 +39,7 @@ export default function Scanner() {
   const [sellerName, setSellerName] = useState("");
   const [saleQuantity, setSaleQuantity] = useState("1");
   const [saleDate, setSaleDate] = useState(
-    new Date().toISOString().split("T")[0]
+    new Date().toISOString().split("T")[0],
   );
 
   // Update form
@@ -57,10 +59,15 @@ export default function Scanner() {
   const fetchProductByBarcode = async (barcode: string) => {
     try {
       setLoading(true);
-      const result = await apiGet<Product>(ENDPOINTS.productsByBarcode(barcode));
+      const result = await apiGet<Product>(
+        ENDPOINTS.productsByBarcode(barcode),
+      );
 
       if (!result.success) {
-        Alert.alert("Ürün Bulunamadı", result.message || "Bu barkoda ait ürün sistemde kayıtlı değil.");
+        Alert.alert(
+          "Ürün Bulunamadı",
+          result.message || "Bu barkoda ait ürün sistemde kayıtlı değil.",
+        );
         return null;
       }
       return result.data;
@@ -135,7 +142,10 @@ export default function Scanner() {
     try {
       setLoading(true);
 
-      const result = await apiPut(ENDPOINTS.productsById(product.id), updatedData);
+      const result = await apiPut(
+        ENDPOINTS.productsById(product.id),
+        updatedData,
+      );
 
       if (!result.success) {
         Alert.alert("Hata", result.message || "Ürün güncellenemedi");
@@ -169,7 +179,9 @@ export default function Scanner() {
             try {
               setLoading(true);
 
-              const result = await apiDelete(ENDPOINTS.productsById(product.id));
+              const result = await apiDelete(
+                ENDPOINTS.productsById(product.id),
+              );
 
               if (!result.success) {
                 Alert.alert("Hata", result.message || "Ürün silinemedi");
@@ -189,11 +201,16 @@ export default function Scanner() {
             }
           },
         },
-      ]
+      ],
     );
   };
 
-  const handleBarCodeScanned = async ({ data }: { type: string; data: string }) => {
+  const handleBarCodeScanned = async ({
+    data,
+  }: {
+    type: string;
+    data: string;
+  }) => {
     setScanned(true);
     setScanning(false);
 
@@ -207,6 +224,24 @@ export default function Scanner() {
       setUpdatePrice(productData.price.toString());
       setUpdateStock(productData.stock.toString());
       setUpdateCategory(productData.category || "");
+    } else {
+      Alert.alert(
+        "Ürün Bulunamadı",
+        `"${data}" barkodlu ürün bulunamadı. Yeni ürün eklemek ister misiniz?`,
+        [
+          { text: "Vazgeç", onPress: resetScanner },
+          {
+            text: "Ürün Ekle",
+            onPress: () => {
+              resetScanner();
+              router.push({
+                pathname: "/(tabs)/add-product",
+                params: { barcode: data },
+              });
+            },
+          },
+        ],
+      );
     }
   };
 
@@ -247,7 +282,15 @@ export default function Scanner() {
             facing="back"
             onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
             barcodeScannerSettings={{
-              barcodeTypes: ["qr", "ean13", "ean8", "code39", "code128", "upc_a", "upc_e"],
+              barcodeTypes: [
+                "qr",
+                "ean13",
+                "ean8",
+                "code39",
+                "code128",
+                "upc_a",
+                "upc_e",
+              ],
             }}
           />
           <View style={styles.overlay}>
@@ -263,12 +306,17 @@ export default function Scanner() {
       ) : (
         <View style={styles.centered}>
           <ActivityIndicator size="large" color="#2ecc71" />
-          <Text style={styles.text}>Ürün aranıyor...</Text>
+          <Text style={styles.text}>Ürün Aranıyor </Text>
         </View>
       )}
 
       {/* Ürün Detayları Modal */}
-      <Modal animationType="slide" transparent visible={detailsModalVisible} onRequestClose={() => setDetailsModalVisible(false)}>
+      <Modal
+        animationType="slide"
+        transparent
+        visible={detailsModalVisible}
+        onRequestClose={() => setDetailsModalVisible(false)}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
@@ -282,7 +330,9 @@ export default function Scanner() {
               <ScrollView style={styles.detailsScroll}>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Barkod</Text>
-                  <Text style={styles.detailValue}>{product.barcode || "—"}</Text>
+                  <Text style={styles.detailValue}>
+                    {product.barcode || "—"}
+                  </Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Ürün Adı</Text>
@@ -291,12 +341,19 @@ export default function Scanner() {
                 {product.description ? (
                   <View style={styles.detailRow}>
                     <Text style={styles.detailLabel}>Açıklama</Text>
-                    <Text style={styles.detailValue}>{product.description}</Text>
+                    <Text style={styles.detailValue}>
+                      {product.description}
+                    </Text>
                   </View>
                 ) : null}
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Fiyat</Text>
-                  <Text style={[styles.detailValue, { color: "#27ae60", fontSize: 18, fontWeight: "bold" }]}>
+                  <Text
+                    style={[
+                      styles.detailValue,
+                      { color: "#27ae60", fontSize: 18, fontWeight: "bold" },
+                    ]}
+                  >
                     {product.price.toLocaleString("tr-TR")} TL
                   </Text>
                 </View>
@@ -345,7 +402,10 @@ export default function Scanner() {
                     <Text style={styles.actionButtonText}>Güncelle</Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity style={[styles.actionButton, styles.deleteButton]} onPress={deleteProduct}>
+                  <TouchableOpacity
+                    style={[styles.actionButton, styles.deleteButton]}
+                    onPress={deleteProduct}
+                  >
                     <Ionicons name="trash" size={20} color="white" />
                     <Text style={styles.actionButtonText}>Sil</Text>
                   </TouchableOpacity>
@@ -353,7 +413,10 @@ export default function Scanner() {
               </ScrollView>
             )}
 
-            <TouchableOpacity style={styles.scanAgainButton} onPress={resetScanner}>
+            <TouchableOpacity
+              style={styles.scanAgainButton}
+              onPress={resetScanner}
+            >
               <Ionicons name="scan" size={20} color="white" />
               <Text style={styles.scanAgainText}>Yeni Ürün Tara</Text>
             </TouchableOpacity>
@@ -362,7 +425,12 @@ export default function Scanner() {
       </Modal>
 
       {/* Satış Modal */}
-      <Modal animationType="slide" transparent visible={saleModalVisible} onRequestClose={() => setSaleModalVisible(false)}>
+      <Modal
+        animationType="slide"
+        transparent
+        visible={saleModalVisible}
+        onRequestClose={() => setSaleModalVisible(false)}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
@@ -419,7 +487,9 @@ export default function Scanner() {
                   <View style={styles.totalPriceContainer}>
                     <Text style={styles.totalPriceLabel}>Toplam Tutar</Text>
                     <Text style={styles.totalPriceValue}>
-                      {(product.price * parseInt(saleQuantity || "0")).toLocaleString("tr-TR", {
+                      {(
+                        product.price * parseInt(saleQuantity || "0")
+                      ).toLocaleString("tr-TR", {
                         minimumFractionDigits: 2,
                       })}{" "}
                       TL
@@ -435,8 +505,14 @@ export default function Scanner() {
                       <ActivityIndicator color="white" />
                     ) : (
                       <>
-                        <Ionicons name="checkmark-circle" size={20} color="white" />
-                        <Text style={styles.submitButtonText}>Satışı Onayla</Text>
+                        <Ionicons
+                          name="checkmark-circle"
+                          size={20}
+                          color="white"
+                        />
+                        <Text style={styles.submitButtonText}>
+                          Satışı Onayla
+                        </Text>
                       </>
                     )}
                   </TouchableOpacity>
@@ -448,7 +524,12 @@ export default function Scanner() {
       </Modal>
 
       {/* Güncelleme Modal */}
-      <Modal animationType="slide" transparent visible={updateModalVisible} onRequestClose={() => setUpdateModalVisible(false)}>
+      <Modal
+        animationType="slide"
+        transparent
+        visible={updateModalVisible}
+        onRequestClose={() => setUpdateModalVisible(false)}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
@@ -461,7 +542,12 @@ export default function Scanner() {
             <ScrollView style={styles.formScroll}>
               <View style={styles.inputGroup}>
                 <Text style={styles.inputLabel}>Ürün Adı *</Text>
-                <TextInput style={styles.input} placeholder="Ürün adı" value={updateName} onChangeText={setUpdateName} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Ürün adı"
+                  value={updateName}
+                  onChangeText={setUpdateName}
+                />
               </View>
 
               <View style={styles.inputGroup}>
@@ -500,10 +586,19 @@ export default function Scanner() {
 
               <View style={styles.inputGroup}>
                 <Text style={styles.inputLabel}>Kategori</Text>
-                <TextInput style={styles.input} placeholder="Kategori" value={updateCategory} onChangeText={setUpdateCategory} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Kategori"
+                  value={updateCategory}
+                  onChangeText={setUpdateCategory}
+                />
               </View>
 
-              <TouchableOpacity style={styles.submitButton} onPress={updateProduct} disabled={loading}>
+              <TouchableOpacity
+                style={styles.submitButton}
+                onPress={updateProduct}
+                disabled={loading}
+              >
                 {loading ? (
                   <ActivityIndicator color="white" />
                 ) : (
@@ -529,17 +624,41 @@ export default function Scanner() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000" },
-  centered: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#f5f5f5" },
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
+  },
   text: { fontSize: 16, marginTop: 12, color: "#666" },
-  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center" },
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   scanArea: { width: 250, height: 250, position: "relative" },
-  corner: { position: "absolute", width: 40, height: 40, borderColor: "#2ecc71" },
+  corner: {
+    position: "absolute",
+    width: 40,
+    height: 40,
+    borderColor: "#2ecc71",
+  },
   topLeft: { top: 0, left: 0, borderTopWidth: 4, borderLeftWidth: 4 },
   topRight: { top: 0, right: 0, borderTopWidth: 4, borderRightWidth: 4 },
   bottomLeft: { bottom: 0, left: 0, borderBottomWidth: 4, borderLeftWidth: 4 },
-  bottomRight: { bottom: 0, right: 0, borderBottomWidth: 4, borderRightWidth: 4 },
+  bottomRight: {
+    bottom: 0,
+    right: 0,
+    borderBottomWidth: 4,
+    borderRightWidth: 4,
+  },
   scanText: { color: "white", fontSize: 18, marginTop: 20, fontWeight: "600" },
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "flex-end",
+  },
   modalContent: {
     backgroundColor: "white",
     borderTopLeftRadius: 20,
@@ -558,13 +677,25 @@ const styles = StyleSheet.create({
   },
   modalTitle: { fontSize: 20, fontWeight: "bold", color: "#333" },
   detailsScroll: { padding: 20 },
-  detailRow: { marginBottom: 14, paddingBottom: 14, borderBottomWidth: 1, borderBottomColor: "#f0f0f0" },
+  detailRow: {
+    marginBottom: 14,
+    paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
   detailLabel: { fontSize: 13, color: "#999", marginBottom: 4 },
   detailValue: { fontSize: 16, color: "#333", fontWeight: "500" },
   lowStock: { color: "#FF3B30", fontWeight: "bold" },
   normalStock: { color: "#34C759" },
   actionButtons: { marginTop: 20, gap: 10 },
-  actionButton: { flexDirection: "row", alignItems: "center", justifyContent: "center", paddingVertical: 14, borderRadius: 10, gap: 8 },
+  actionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 14,
+    borderRadius: 10,
+    gap: 8,
+  },
   sellButton: { backgroundColor: "#2ecc71" },
   updateButton: { backgroundColor: "#3498db" },
   deleteButton: { backgroundColor: "#e74c3c" },
@@ -582,12 +713,32 @@ const styles = StyleSheet.create({
   },
   scanAgainText: { color: "white", fontSize: 16, fontWeight: "600" },
   formScroll: { padding: 20 },
-  saleProductInfo: { backgroundColor: "#f8f9fa", padding: 16, borderRadius: 10, marginBottom: 20 },
-  saleProductName: { fontSize: 18, fontWeight: "bold", color: "#333", marginBottom: 6 },
-  saleProductPrice: { fontSize: 24, fontWeight: "bold", color: "#27ae60", marginBottom: 4 },
+  saleProductInfo: {
+    backgroundColor: "#f8f9fa",
+    padding: 16,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  saleProductName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 6,
+  },
+  saleProductPrice: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#27ae60",
+    marginBottom: 4,
+  },
   saleProductStock: { fontSize: 14, color: "#666" },
   inputGroup: { marginBottom: 16 },
-  inputLabel: { fontSize: 14, fontWeight: "600", color: "#333", marginBottom: 6 },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 6,
+  },
   input: {
     borderWidth: 1,
     borderColor: "#ddd",

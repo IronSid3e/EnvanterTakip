@@ -12,12 +12,10 @@ Inventory tracking system (EnvanterTakip) with three independent sub-projects. N
 | `EnvanterTakip.Admin/` | React 19, Vite 8, TypeScript 6, ESLint | `npm run dev` | 5173 |
 | `EnvanterTakip.mobile/` | Expo SDK 54, React Native 0.81, expo-router | `npm start` | 8081 |
 
-Root `package.json` is a leftover (only has `expo-camera`); do not run `npm` commands from root.
-
 ## API (EnvanterTakip.API)
 
 - **Target framework**: `net10.0` — requires .NET 10 SDK.
-- **Database**: PostgreSQL via Npgsql. Connection string is in `appsettings.json` (`Host=localhost;Database=EnvanterDb`). No `.env` or User Secrets pattern in active use — config is edited directly.
+- **Database**: PostgreSQL via Npgsql. Connection string is stored in .NET User Secrets (`dotnet user-secrets`), not in `appsettings.json`.
 - **Migrations**: EF Core code-first, located in `Migrations/`. Apply with `dotnet ef database update` from the API directory.
 - **Legacy timestamp behavior** is explicitly enabled in `Program.cs:5` (`Npgsql.EnableLegacyTimestampBehavior`). New code should be aware of this.
 - **CORS** is locked to `localhost:5173` (Admin), `localhost:8081` (Expo web), `exp://localhost:8081` (Expo native). When adding new clients, update the policy in `Program.cs`.

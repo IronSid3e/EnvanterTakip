@@ -1,9 +1,4 @@
-import Constants from "expo-constants";
-
-const API_IP = "192.168.1.243";
-const API_PORT = 5279;
-
-export const API_BASE_URL = `http://${API_IP}:${API_PORT}/api`;
+const API_BASE_URL = "http://localhost:5279/api";
 
 export const ENDPOINTS = {
   products: `${API_BASE_URL}/products`,
@@ -16,7 +11,6 @@ export const ENDPOINTS = {
   salesDashboard: `${API_BASE_URL}/sales/dashboard`,
 };
 
-// API Response tipleri
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
@@ -64,13 +58,44 @@ export interface DashboardStats {
   totalRevenue: number;
   lowStockProducts: number;
   outOfStockProducts: number;
-  recentSales: Sale[];
+  recentSales: {
+    id: number;
+    productName: string;
+    sellerName: string;
+    quantity: number;
+    totalPrice: number;
+    saleDate: string;
+  }[];
   topSellingProducts: {
     productId: number;
     productName: string;
     totalSold: number;
     totalRevenue: number;
   }[];
+}
+
+export interface ProductFilterParams {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  sortBy?: string;
+  sortDescending?: boolean;
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  inStock?: boolean;
+}
+
+export interface SaleFilterParams {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  sortBy?: string;
+  sortDescending?: boolean;
+  productId?: number;
+  startDate?: string;
+  endDate?: string;
+  sellerName?: string;
 }
 
 async function handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
@@ -86,8 +111,24 @@ async function handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
   return data as ApiResponse<T>;
 }
 
-export async function apiGet<T>(url: string): Promise<ApiResponse<T>> {
-  const response = await fetch(url);
+function buildQueryString(params: Record<string, unknown>): string {
+  const entries = Object.entries(params).filter(
+    ([, v]) => v !== undefined && v !== null && v !== "",
+  );
+  if (entries.length === 0) return "";
+  const searchParams = new URLSearchParams();
+  for (const [key, value] of entries) {
+    searchParams.set(key, String(value));
+  }
+  return `?${searchParams.toString()}`;
+}
+
+export async function apiGet<T>(
+  url: string,
+  params?: Record<string, unknown>,
+): Promise<ApiResponse<T>> {
+  const qs = params ? buildQueryString(params) : "";
+  const response = await fetch(`${url}${qs}`);
   return handleResponse<T>(response);
 }
 
