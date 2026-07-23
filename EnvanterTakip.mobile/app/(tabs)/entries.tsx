@@ -9,23 +9,23 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
-import { ENDPOINTS, Sale, PaginatedResponse, apiGet } from "@/config/api";
+import { ENDPOINTS, StockEntry, PaginatedResponse, apiGet } from "@/config/api";
 
-export default function SalesScreen() {
-  const [sales, setSales] = useState<Sale[]>([]);
+export default function EntriesScreen() {
+  const [entries, setEntries] = useState<StockEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchSales = async () => {
+  const fetchEntries = async () => {
     try {
-      const result = await apiGet<PaginatedResponse<Sale>>(
-        `${ENDPOINTS.sales}?pageSize=100`
+      const result = await apiGet<PaginatedResponse<StockEntry>>(
+        `${ENDPOINTS.stockEntries}?pageSize=100`
       );
       if (result.success && result.data) {
-        setSales(result.data.items);
+        setEntries(result.data.items);
       }
     } catch (error) {
-      console.error("Satışlar alınamadı:", error);
+      console.error("Stok girişleri alınamadı:", error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -34,21 +34,21 @@ export default function SalesScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      fetchSales();
+      fetchEntries();
     }, [])
   );
 
   const onRefresh = () => {
     setRefreshing(true);
-    fetchSales();
+    fetchEntries();
   };
 
-  const renderSale = ({ item }: { item: Sale }) => (
+  const renderEntry = ({ item }: { item: StockEntry }) => (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         <View style={{ flex: 1 }}>
           <Text style={styles.productName}>{item.productName}</Text>
-          <Text style={styles.sellerName}>{item.sellerName}</Text>
+          <Text style={styles.supplierName}>{item.supplierName}</Text>
         </View>
       </View>
 
@@ -56,15 +56,23 @@ export default function SalesScreen() {
 
       <View style={styles.cardFooter}>
         <View style={styles.infoChip}>
-          <Ionicons name="layers-outline" size={14} color="#666" />
-          <Text style={styles.infoText}>{item.quantity} adet</Text>
+          <Ionicons name="add-circle-outline" size={14} color="#27ae60" />
+          <Text style={[styles.infoText, { color: "#27ae60", fontWeight: "600" }]}>
+            +{item.quantity} adet
+          </Text>
         </View>
         <View style={styles.infoChip}>
           <Ionicons name="calendar-outline" size={14} color="#666" />
           <Text style={styles.infoText}>
-            {new Date(item.saleDate).toLocaleDateString("tr-TR")}
+            {new Date(item.entryDate).toLocaleDateString("tr-TR")}
           </Text>
         </View>
+        {item.note ? (
+          <View style={styles.infoChip}>
+            <Ionicons name="chatbubble-outline" size={14} color="#999" />
+            <Text style={styles.infoText} numberOfLines={1}>{item.note}</Text>
+          </View>
+        ) : null}
       </View>
     </View>
   );
@@ -72,25 +80,25 @@ export default function SalesScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Satış Geçmişi</Text>
-        <Text style={styles.headerSubtitle}>{sales.length} satış kaydı</Text>
+        <Text style={styles.headerTitle}>Stok Girişleri</Text>
+        <Text style={styles.headerSubtitle}>{entries.length} giriş kaydı</Text>
       </View>
 
       {loading ? (
         <ActivityIndicator size="large" color="#2ecc71" style={styles.center} />
       ) : (
         <FlatList
-          data={sales}
+          data={entries}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={renderSale}
+          renderItem={renderEntry}
           contentContainerStyle={styles.listContent}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2ecc71" />
           }
           ListEmptyComponent={
             <View style={styles.center}>
-              <Ionicons name="receipt-outline" size={50} color="#ccc" />
-              <Text style={styles.emptyText}>Henüz satış kaydı bulunmuyor.</Text>
+              <Ionicons name="archive-outline" size={50} color="#ccc" />
+              <Text style={styles.emptyText}>Henüz stok girişi bulunmuyor.</Text>
             </View>
           }
         />
@@ -135,9 +143,9 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   productName: { fontSize: 16, fontWeight: "700", color: "#333" },
-  sellerName: { fontSize: 13, color: "#95a5a6", marginTop: 2 },
+  supplierName: { fontSize: 13, color: "#95a5a6", marginTop: 2 },
   divider: { height: 1, backgroundColor: "#f0f0f0", marginVertical: 10 },
-  cardFooter: { flexDirection: "row", gap: 16 },
+  cardFooter: { flexDirection: "row", gap: 16, flexWrap: "wrap" },
   infoChip: { flexDirection: "row", alignItems: "center", gap: 4 },
   infoText: { fontSize: 13, color: "#666" },
   emptyText: {

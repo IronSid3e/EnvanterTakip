@@ -1,14 +1,14 @@
-namespace EnvanterTakip.API.DTOs.Sales
+namespace EnvanterTakip.API.DTOs.StockEntries
 {
-    public class SaleResponseDto
+    public class StockEntryResponseDto
     {
         public int Id { get; set; }
         public int ProductId { get; set; }
         public string ProductName { get; set; } = string.Empty;
-        public string SellerName { get; set; } = string.Empty;
+        public string SupplierName { get; set; } = string.Empty;
         public int Quantity { get; set; }
-        public decimal UnitPrice { get; set; }
-        public DateTime SaleDate { get; set; }
+        public DateTime EntryDate { get; set; }
+        public string? Note { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }

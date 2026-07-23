@@ -18,7 +18,6 @@ import {
   Product,
   ApiResponse,
   PaginatedResponse,
-  DashboardStats,
   apiGet,
 } from "@/config/api";
 
@@ -30,13 +29,13 @@ export default function HomeScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
   const [totalCount, setTotalCount] = useState(0);
-  const [stats, setStats] = useState<DashboardStats | null>(null);
 
   const fetchProducts = async () => {
     try {
       let url = `${ENDPOINTS.products}?pageSize=100`;
       if (search.trim()) url += `&search=${encodeURIComponent(search.trim())}`;
-      if (selectedCategory) url += `&category=${encodeURIComponent(selectedCategory)}`;
+      if (selectedCategory)
+        url += `&category=${encodeURIComponent(selectedCategory)}`;
 
       const result = await apiGet<PaginatedResponse<Product>>(url);
 
@@ -66,23 +65,11 @@ export default function HomeScreen() {
     }
   };
 
-  const fetchStats = async () => {
-    try {
-      const result = await apiGet<DashboardStats>(ENDPOINTS.salesDashboard);
-      if (result.success && result.data) {
-        setStats(result.data);
-      }
-    } catch (error) {
-      console.error("İstatistikler alınamadı:", error);
-    }
-  };
-
   useFocusEffect(
     useCallback(() => {
       fetchProducts();
       fetchCategories();
-      fetchStats();
-    }, [search, selectedCategory])
+    }, [search, selectedCategory]),
   );
 
   const onRefresh = () => {
@@ -99,7 +86,9 @@ export default function HomeScreen() {
             <Text style={styles.categoryText}>{item.category}</Text>
           ) : null}
         </View>
-        <Text style={styles.priceText}>{item.price.toLocaleString("tr-TR")} TL</Text>
+        <Text style={styles.priceText}>
+          {item.price.toLocaleString("tr-TR")} TL
+        </Text>
       </View>
 
       <View style={styles.divider} />
@@ -149,13 +138,14 @@ export default function HomeScreen() {
           <TouchableOpacity
             style={[styles.actionButton, { backgroundColor: "#3498db" }]}
             onPress={() =>
-              Alert.alert(
-                item.name,
-                item.description || "Açıklama bulunmuyor."
-              )
+              Alert.alert(item.name, item.description || "Açıklama bulunmuyor.")
             }
           >
-            <Ionicons name="information-circle-outline" size={20} color="#fff" />
+            <Ionicons
+              name="information-circle-outline"
+              size={20}
+              color="#fff"
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -175,38 +165,14 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* İstatistikler */}
-      {stats && (
-        <View style={styles.statsBar}>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>{stats.totalProducts}</Text>
-            <Text style={styles.statLabel}>Ürün</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>{stats.totalSales}</Text>
-            <Text style={styles.statLabel}>Satış</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={[styles.statValue, { color: "#27ae60" }]}>
-              {stats.totalRevenue.toLocaleString("tr-TR")}
-            </Text>
-            <Text style={styles.statLabel}>Gelir (TL)</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={[styles.statValue, { color: stats.lowStockProducts > 0 ? "#e74c3c" : "#333" }]}>
-              {stats.lowStockProducts}
-            </Text>
-            <Text style={styles.statLabel}>Düşük Stok</Text>
-          </View>
-        </View>
-      )}
-
       {/* Arama Çubuğu */}
       <View style={styles.searchContainer}>
-        <Ionicons name="search" size={18} color="#999" style={styles.searchIcon} />
+        <Ionicons
+          name="search"
+          size={18}
+          color="#999"
+          style={styles.searchIcon}
+        />
         <TextInput
           style={styles.searchInput}
           placeholder="Ürün ara... (isim, barkod, kategori)"
@@ -238,7 +204,7 @@ export default function HomeScreen() {
                   !selectedCategory && styles.filterChipTextActive,
                 ]}
               >
-                Tümü
+                Tümü {}
               </Text>
             </TouchableOpacity>
             {categories.map((cat) => (
@@ -258,7 +224,7 @@ export default function HomeScreen() {
                     selectedCategory === cat && styles.filterChipTextActive,
                   ]}
                 >
-                  {cat}
+                  {cat} {}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -321,24 +287,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  statsBar: {
-    flexDirection: "row",
-    backgroundColor: "#fff",
-    marginHorizontal: 15,
-    marginTop: 12,
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 3,
-  },
-  statItem: { flex: 1, alignItems: "center" },
-  statValue: { fontSize: 17, fontWeight: "bold", color: "#2c3e50" },
-  statLabel: { fontSize: 11, color: "#95a5a6", marginTop: 2 },
-  statDivider: { width: 1, backgroundColor: "#f0f0f0" },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",

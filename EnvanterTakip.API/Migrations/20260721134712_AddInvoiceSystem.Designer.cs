@@ -3,6 +3,7 @@ using System;
 using EnvanterTakip.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EnvanterTakip.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260721134712_AddInvoiceSystem")]
+    partial class AddInvoiceSystem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -206,42 +209,6 @@ namespace EnvanterTakip.API.Migrations
                     b.ToTable("Sales");
                 });
 
-            modelBuilder.Entity("EnvanterTakip.API.Models.StockEntry", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<DateTime>("EntryDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("SupplierName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("StockEntries");
-                });
-
             modelBuilder.Entity("EnvanterTakip.API.Models.Invoice", b =>
                 {
                     b.HasOne("EnvanterTakip.API.Models.Customer", "Customer")
@@ -272,17 +239,6 @@ namespace EnvanterTakip.API.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("EnvanterTakip.API.Models.StockEntry", b =>
-                {
-                    b.HasOne("EnvanterTakip.API.Models.Product", "Product")
-                        .WithMany("StockEntries")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("EnvanterTakip.API.Models.Customer", b =>
                 {
                     b.Navigation("Invoices");
@@ -291,8 +247,6 @@ namespace EnvanterTakip.API.Migrations
             modelBuilder.Entity("EnvanterTakip.API.Models.Product", b =>
                 {
                     b.Navigation("Sales");
-
-                    b.Navigation("StockEntries");
                 });
 #pragma warning restore 612, 618
         }

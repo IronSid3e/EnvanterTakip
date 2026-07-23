@@ -14,6 +14,14 @@ export const ENDPOINTS = {
   sales: `${API_BASE_URL}/sales`,
   salesById: (id: number) => `${API_BASE_URL}/sales/${id}`,
   salesDashboard: `${API_BASE_URL}/sales/dashboard`,
+  stockEntries: `${API_BASE_URL}/stockentries`,
+  stockEntriesById: (id: number) => `${API_BASE_URL}/stockentries/${id}`,
+  customers: `${API_BASE_URL}/customers`,
+  customersById: (id: number) => `${API_BASE_URL}/customers/${id}`,
+  invoices: `${API_BASE_URL}/invoices`,
+  invoicesById: (id: number) => `${API_BASE_URL}/invoices/${id}`,
+  invoicesPdf: (id: number) => `${API_BASE_URL}/invoices/${id}/pdf`,
+  invoicesStatus: (id: number) => `${API_BASE_URL}/invoices/${id}/status`,
 };
 
 // API Response tipleri
@@ -53,24 +61,71 @@ export interface Sale {
   sellerName: string;
   quantity: number;
   unitPrice: number;
-  totalPrice: number;
   saleDate: string;
+  createdAt: string;
+}
+
+export interface StockEntry {
+  id: number;
+  productId: number;
+  productName: string;
+  supplierName: string;
+  quantity: number;
+  entryDate: string;
+  note: string | null;
   createdAt: string;
 }
 
 export interface DashboardStats {
   totalProducts: number;
   totalSales: number;
-  totalRevenue: number;
   lowStockProducts: number;
   outOfStockProducts: number;
+  totalStockCount: number;
+  todaySalesCount: number;
   recentSales: Sale[];
   topSellingProducts: {
     productId: number;
     productName: string;
     totalSold: number;
-    totalRevenue: number;
   }[];
+}
+
+export interface Customer {
+  id: number;
+  type: string;
+  name: string;
+  taxNumber: string | null;
+  taxOffice: string | null;
+  nationalId: string | null;
+  address: string | null;
+  phone: string | null;
+  createdAt: string;
+}
+
+export interface Invoice {
+  id: number;
+  invoiceNumber: string;
+  saleId: number;
+  productName: string;
+  quantity: number;
+  unitPrice: number;
+  saleTotalPrice: number;
+  customerId: number;
+  customerName: string;
+  customerType: string;
+  customerTaxNumber: string | null;
+  customerTaxOffice: string | null;
+  customerNationalId: string | null;
+  customerAddress: string | null;
+  customerPhone: string | null;
+  invoiceDate: string;
+  taxRate: number;
+  taxAmount: number;
+  totalAmount: number;
+  status: string;
+  notes: string | null;
+  createdAt: string;
 }
 
 async function handleResponse<T>(response: Response): Promise<ApiResponse<T>> {

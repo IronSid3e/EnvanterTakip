@@ -12,16 +12,18 @@ const TAB_CONFIG: {
 } = {
   dashboard: { icon: "grid-outline", iconFocused: "grid", label: "Anasayfa" },
   index: { icon: "list-outline", iconFocused: "list", label: "Ürünler" },
-  "add-product": {
-    icon: "add-circle-outline",
-    iconFocused: "add-circle",
-    label: "Ekle",
-  },
   sales: { icon: "receipt-outline", iconFocused: "receipt", label: "Satışlar" },
+  entries: { icon: "archive-outline", iconFocused: "archive", label: "Girişler" },
 };
 
 export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
-  const tabOrder = ["dashboard", "index", "scanner", "add-product", "sales"];
+  const tabOrder = [
+    "dashboard",
+    "index",
+    "scanner",
+    "sales",
+    "entries",
+  ];
   const tabs = tabOrder
     .map((name) => state.routes.find((r) => r.name === name)!)
     .filter(Boolean);
@@ -70,9 +72,14 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
   return (
     <View style={styles.container} pointerEvents="box-none">
       <View style={styles.bar}>
-        {leftTabs.map(renderTab)}
+        {/* Sol taraftaki sekmeler eşit bir blok içine alındı */}
+        <View style={styles.sideContainer}>{leftTabs.map(renderTab)}</View>
+
+        {/* Butonun genişliği kadar (64) ve biraz boşluk bırakacak sabit bir alan */}
         <View style={styles.centerPlaceholder} />
-        {rightTabs.map(renderTab)}
+
+        {/* Sağ taraftaki sekmeler eşit bir blok içine alındı */}
+        <View style={styles.sideContainer}>{rightTabs.map(renderTab)}</View>
       </View>
 
       {scannerRoute && (
@@ -117,8 +124,13 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 10,
   },
+  sideContainer: {
+    flex: 1, // Sol ve sağ grupların her birinin eşit genişlikte (%50-%50 gibi) olmasını sağlar
+    flexDirection: "row",
+    height: "100%",
+  },
   centerPlaceholder: {
-    flex: 1,
+    width: 70, // 64px olan tarayıcı butonunun bar üzerinde rahat oturması için sabit boşluk
   },
   tab: {
     flex: 1,

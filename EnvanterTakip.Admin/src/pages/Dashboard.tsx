@@ -57,13 +57,17 @@ export default function Dashboard() {
           </div>
           <div style={{ fontSize: 28, fontWeight: 700 }}>{stats.totalSales}</div>
         </div>
-        <div style={cardStyle("#ffc107")}>
+        <div style={cardStyle("#6f42c1")}>
           <div style={{ color: "var(--text-muted)", fontSize: 13, marginBottom: 4 }}>
-            Toplam Gelir
+            Bugün Yapılan Satış
           </div>
-          <div style={{ fontSize: 28, fontWeight: 700 }}>
-            {stats.totalRevenue.toLocaleString("tr-TR")} ₺
+          <div style={{ fontSize: 28, fontWeight: 700 }}>{stats.todaySalesCount}</div>
+        </div>
+        <div style={cardStyle("#20c997")}>
+          <div style={{ color: "var(--text-muted)", fontSize: 13, marginBottom: 4 }}>
+            Toplam Stok Adedi
           </div>
+          <div style={{ fontSize: 28, fontWeight: 700 }}>{stats.totalStockCount}</div>
         </div>
         <div style={cardStyle("#dc3545")}>
           <div style={{ color: "var(--text-muted)", fontSize: 13, marginBottom: 4 }}>
@@ -86,7 +90,6 @@ export default function Dashboard() {
                 <th style={thStyle}>Ürün</th>
                 <th style={thStyle}>Satıcı</th>
                 <th style={thStyle}>Adet</th>
-                <th style={thStyle}>Tutar</th>
                 <th style={thStyle}>Tarih</th>
               </tr>
             </thead>
@@ -96,13 +99,12 @@ export default function Dashboard() {
                   <td style={tdStyle}>{sale.productName}</td>
                   <td style={tdStyle}>{sale.sellerName}</td>
                   <td style={tdStyle}>{sale.quantity}</td>
-                  <td style={tdStyle}>{sale.totalPrice.toLocaleString("tr-TR")} ₺</td>
                   <td style={tdStyle}>{new Date(sale.saleDate).toLocaleDateString("tr-TR")}</td>
                 </tr>
               ))}
               {stats.recentSales.length === 0 && (
                 <tr>
-                  <td colSpan={5} style={{ ...tdStyle, textAlign: "center", color: "var(--text-muted)" }}>
+                  <td colSpan={4} style={{ ...tdStyle, textAlign: "center", color: "var(--text-muted)" }}>
                     Henüz satış yok
                   </td>
                 </tr>
@@ -119,8 +121,7 @@ export default function Dashboard() {
             <thead>
               <tr style={{ background: "#f8f9fa" }}>
                 <th style={thStyle}>Ürün</th>
-                <th style={thStyle}>Satılan</th>
-                <th style={thStyle}>Gelir</th>
+                <th style={thStyle}>Satılan (Adet)</th>
               </tr>
             </thead>
             <tbody>
@@ -128,12 +129,11 @@ export default function Dashboard() {
                 <tr key={p.productId} style={{ borderBottom: "1px solid var(--border)" }}>
                   <td style={tdStyle}>{p.productName}</td>
                   <td style={tdStyle}>{p.totalSold}</td>
-                  <td style={tdStyle}>{p.totalRevenue.toLocaleString("tr-TR")} ₺</td>
                 </tr>
               ))}
               {stats.topSellingProducts.length === 0 && (
                 <tr>
-                  <td colSpan={3} style={{ ...tdStyle, textAlign: "center", color: "var(--text-muted)" }}>
+                  <td colSpan={2} style={{ ...tdStyle, textAlign: "center", color: "var(--text-muted)" }}>
                     Veri yok
                   </td>
                 </tr>

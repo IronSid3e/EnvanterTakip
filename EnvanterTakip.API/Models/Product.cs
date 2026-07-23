@@ -29,5 +29,6 @@ namespace EnvanterTakip.API.Models
 
         // Navigation property
         public ICollection<Sale> Sales { get; set; } = new List<Sale>();
+        public ICollection<StockEntry> StockEntries { get; set; } = new List<StockEntry>();
     }
 }

@@ -67,7 +67,6 @@ export default function Sales() {
         Satış Geçmişi ({totalCount})
       </h2>
 
-      {/* Filtreler */}
       <div
         style={{
           display: "flex",
@@ -111,7 +110,6 @@ export default function Sales() {
         <p style={{ color: "var(--danger)", marginBottom: 12 }}>{error}</p>
       )}
 
-      {/* Tablo */}
       <div
         style={{
           background: "#fff",
@@ -126,21 +124,19 @@ export default function Sales() {
               <th style={thStyle}>Ürün</th>
               <th style={thStyle}>Satıcı</th>
               <th style={{ ...thStyle, textAlign: "right" }}>Adet</th>
-              <th style={{ ...thStyle, textAlign: "right" }}>Birim Fiyat</th>
-              <th style={{ ...thStyle, textAlign: "right" }}>Toplam</th>
               <th style={thStyle}>Tarih</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={6} style={{ ...tdStyle, textAlign: "center", padding: 32 }}>
+                <td colSpan={4} style={{ ...tdStyle, textAlign: "center", padding: 32 }}>
                   Yükleniyor...
                 </td>
               </tr>
             ) : sales.length === 0 ? (
               <tr>
-                <td colSpan={6} style={{ ...tdStyle, textAlign: "center", padding: 32, color: "var(--text-muted)" }}>
+                <td colSpan={4} style={{ ...tdStyle, textAlign: "center", padding: 32, color: "var(--text-muted)" }}>
                   Satış bulunamadı
                 </td>
               </tr>
@@ -150,12 +146,6 @@ export default function Sales() {
                   <td style={tdStyle}>{s.productName}</td>
                   <td style={tdStyle}>{s.sellerName}</td>
                   <td style={{ ...tdStyle, textAlign: "right" }}>{s.quantity}</td>
-                  <td style={{ ...tdStyle, textAlign: "right" }}>
-                    {s.unitPrice.toLocaleString("tr-TR")} ₺
-                  </td>
-                  <td style={{ ...tdStyle, textAlign: "right", fontWeight: 600 }}>
-                    {s.totalPrice.toLocaleString("tr-TR")} ₺
-                  </td>
                   <td style={tdStyle}>
                     {new Date(s.saleDate).toLocaleDateString("tr-TR")}
                   </td>
@@ -166,7 +156,6 @@ export default function Sales() {
         </table>
       </div>
 
-      {/* Sayfalama */}
       {totalPages > 1 && (
         <div
           style={{

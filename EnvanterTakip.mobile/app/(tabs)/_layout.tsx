@@ -13,8 +13,8 @@ export default function TabLayout() {
       <Tabs.Screen name="dashboard" />
       <Tabs.Screen name="index" />
       <Tabs.Screen name="scanner" />
-      <Tabs.Screen name="add-product" />
       <Tabs.Screen name="sales" />
+      <Tabs.Screen name="entries" />
     </Tabs>
   );
 }

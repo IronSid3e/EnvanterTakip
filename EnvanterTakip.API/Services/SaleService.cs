@@ -134,14 +134,19 @@ namespace EnvanterTakip.API.Services
 
         public async Task<ApiResponse<DashboardStatsDto>> GetDashboardStatsAsync()
         {
+            var today = DateTime.UtcNow.Date;
+
             var totalProducts = await _context.Products.CountAsync();
             var totalSales = await _context.Sales.CountAsync();
-            var totalRevenue = await _context.Sales.SumAsync(s => s.TotalPrice);
             var lowStockProducts = await _context.Products
                 .Where(p => p.Stock < 5)
                 .CountAsync();
             var outOfStockProducts = await _context.Products
                 .Where(p => p.Stock == 0)
+                .CountAsync();
+            var totalStockCount = await _context.Products.SumAsync(p => p.Stock);
+            var todaySalesCount = await _context.Sales
+                .Where(s => s.SaleDate >= today)
                 .CountAsync();
 
             var recentSales = await _context.Sales
@@ -154,7 +159,6 @@ namespace EnvanterTakip.API.Services
                     ProductName = s.Product!.Name,
                     SellerName = s.SellerName,
                     Quantity = s.Quantity,
-                    TotalPrice = s.TotalPrice,
                     SaleDate = s.SaleDate
                 })
                 .ToListAsync();
@@ -166,8 +170,7 @@ namespace EnvanterTakip.API.Services
                 {
                     ProductId = g.Key.ProductId,
                     ProductName = g.Key.Name,
-                    TotalSold = g.Sum(s => s.Quantity),
-                    TotalRevenue = g.Sum(s => s.TotalPrice)
+                    TotalSold = g.Sum(s => s.Quantity)
                 })
                 .OrderByDescending(x => x.TotalSold)
                 .Take(5)
@@ -177,9 +180,10 @@ namespace EnvanterTakip.API.Services
             {
                 TotalProducts = totalProducts,
                 TotalSales = totalSales,
-                TotalRevenue = totalRevenue,
                 LowStockProducts = lowStockProducts,
                 OutOfStockProducts = outOfStockProducts,
+                TotalStockCount = totalStockCount,
+                TodaySalesCount = todaySalesCount,
                 RecentSales = recentSales,
                 TopSellingProducts = topSellingProducts
             };
@@ -197,7 +201,6 @@ namespace EnvanterTakip.API.Services
                 SellerName = sale.SellerName,
                 Quantity = sale.Quantity,
                 UnitPrice = sale.Product?.Price ?? 0,
-                TotalPrice = sale.TotalPrice,
                 SaleDate = sale.SaleDate,
                 CreatedAt = sale.CreatedAt
             };

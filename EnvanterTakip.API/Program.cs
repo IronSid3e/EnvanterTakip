@@ -51,6 +51,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Services
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ISaleService, SaleService>();
+builder.Services.AddScoped<IStockEntryService, StockEntryService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IInvoiceService, InvoiceService>();
+builder.Services.AddScoped<IPdfService, PdfService>();
 
 // JSON serialization
 builder.Services.ConfigureHttpJsonOptions(options =>

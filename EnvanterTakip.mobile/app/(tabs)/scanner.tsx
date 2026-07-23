@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -9,10 +9,11 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { CameraView, Camera } from "expo-camera";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 import {
   ENDPOINTS,
   Product,
@@ -23,7 +24,6 @@ import {
 } from "@/config/api";
 
 export default function Scanner() {
-  const router = useRouter();
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanned, setScanned] = useState(false);
   const [scanning, setScanning] = useState(true);
@@ -49,12 +49,42 @@ export default function Scanner() {
   const [updateStock, setUpdateStock] = useState("");
   const [updateCategory, setUpdateCategory] = useState("");
 
+  // Add Product (inline)
+  const [addProductVisible, setAddProductVisible] = useState(false);
+  const [addProductBarcode, setAddProductBarcode] = useState("");
+  const [addProductName, setAddProductName] = useState("");
+  const [addProductDescription, setAddProductDescription] = useState("");
+  const [addProductPrice, setAddProductPrice] = useState("");
+  const [addProductStock, setAddProductStock] = useState("");
+  const [addProductCategory, setAddProductCategory] = useState("");
+  const [categories, setCategories] = useState<string[]>([]);
+
+  // Scan area bounds
+  const [scanAreaBounds, setScanAreaBounds] = useState({
+    x: 0,
+    y: 0,
+    width: 250,
+    height: 250,
+  });
+
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === "granted");
     })();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const result = await apiGet<string[]>(ENDPOINTS.productsCategories);
+      if (result.success && result.data) {
+        setCategories(result.data);
+      }
+    } catch (error) {
+      console.error("Kategoriler alınamadı:", error);
+    }
+  };
 
   const fetchProductByBarcode = async (barcode: string) => {
     try {
@@ -64,16 +94,10 @@ export default function Scanner() {
       );
 
       if (!result.success) {
-        Alert.alert(
-          "Ürün Bulunamadı",
-          result.message || "Bu barkoda ait ürün sistemde kayıtlı değil.",
-        );
         return null;
       }
       return result.data;
     } catch (error) {
-      Alert.alert("Hata", "Ürün bilgileri alınırken bir hata oluştu");
-      console.error(error);
       return null;
     } finally {
       setLoading(false);
@@ -100,7 +124,7 @@ export default function Scanner() {
     try {
       setLoading(true);
 
-      const result = await apiPost(ENDPOINTS.sales, {
+      const result = await apiPost<{ id: number }>(ENDPOINTS.sales, {
         productId: product.id,
         sellerName: sellerName.trim(),
         quantity: quantity,
@@ -205,44 +229,54 @@ export default function Scanner() {
     );
   };
 
-  const handleBarCodeScanned = async ({
+  const handleBarCodeScanned = ({
     data,
+    boundingBox,
   }: {
     type: string;
     data: string;
+    boundingBox?: {
+      origin: { x: number; y: number };
+      size: { width: number; height: number };
+    };
   }) => {
-    setScanned(true);
-    setScanning(false);
+    if (boundingBox) {
+      const cx = boundingBox.origin.x + boundingBox.size.width / 2;
+      const cy = boundingBox.origin.y + boundingBox.size.height / 2;
 
-    const productData = await fetchProductByBarcode(data);
-
-    if (productData) {
-      setProduct(productData);
-      setDetailsModalVisible(true);
-      setUpdateName(productData.name);
-      setUpdateDescription(productData.description || "");
-      setUpdatePrice(productData.price.toString());
-      setUpdateStock(productData.stock.toString());
-      setUpdateCategory(productData.category || "");
-    } else {
-      Alert.alert(
-        "Ürün Bulunamadı",
-        `"${data}" barkodlu ürün bulunamadı. Yeni ürün eklemek ister misiniz?`,
-        [
-          { text: "Vazgeç", onPress: resetScanner },
-          {
-            text: "Ürün Ekle",
-            onPress: () => {
-              resetScanner();
-              router.push({
-                pathname: "/(tabs)/add-product",
-                params: { barcode: data },
-              });
-            },
-          },
-        ],
-      );
+      if (
+        cx < scanAreaBounds.x ||
+        cx > scanAreaBounds.x + scanAreaBounds.width ||
+        cy < scanAreaBounds.y ||
+        cy > scanAreaBounds.y + scanAreaBounds.height
+      ) {
+        return;
+      }
     }
+
+    setScanned(true);
+
+    (async () => {
+      const productData = await fetchProductByBarcode(data);
+
+      if (productData) {
+        setProduct(productData);
+        setDetailsModalVisible(true);
+        setUpdateName(productData.name);
+        setUpdateDescription(productData.description || "");
+        setUpdatePrice(productData.price.toString());
+        setUpdateStock(productData.stock.toString());
+        setUpdateCategory(productData.category || "");
+      } else {
+        setAddProductBarcode(data);
+        setAddProductName("");
+        setAddProductDescription("");
+        setAddProductPrice("");
+        setAddProductStock("");
+        setAddProductCategory("");
+        setAddProductVisible(true);
+      }
+    })();
   };
 
   const resetScanner = () => {
@@ -250,6 +284,62 @@ export default function Scanner() {
     setScanning(true);
     setProduct(null);
     setDetailsModalVisible(false);
+  };
+
+  const resetAddProductForm = () => {
+    setAddProductVisible(false);
+    setAddProductBarcode("");
+    setAddProductName("");
+    setAddProductDescription("");
+    setAddProductPrice("");
+    setAddProductStock("");
+    setAddProductCategory("");
+    setScanned(false);
+  };
+
+  const handleSubmitNewProduct = async () => {
+    if (!addProductName.trim()) {
+      Alert.alert("Uyarı", "Ürün adı boş olamaz.");
+      return;
+    }
+    if (!addProductPrice || parseFloat(addProductPrice) < 0) {
+      Alert.alert("Uyarı", "Geçerli bir fiyat girin.");
+      return;
+    }
+    if (!addProductStock || parseInt(addProductStock) < 0) {
+      Alert.alert("Uyarı", "Geçerli bir stok miktarı girin.");
+      return;
+    }
+    if (!addProductCategory.trim()) {
+      Alert.alert("Uyarı", "Kategori boş olamaz.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const result = await apiPost(ENDPOINTS.products, {
+        name: addProductName.trim(),
+        description: addProductDescription.trim(),
+        barcode: addProductBarcode.trim() || null,
+        price: parseFloat(addProductPrice),
+        stock: parseInt(addProductStock),
+        category: addProductCategory.trim(),
+      });
+
+      if (!result.success) {
+        Alert.alert("Hata", result.message || "Ürün oluşturulamadı");
+        return;
+      }
+
+      Alert.alert("Başarılı", `"${addProductName.trim()}" başarıyla eklendi.`);
+      resetAddProductForm();
+      resetScanner();
+    } catch (error) {
+      Alert.alert("Hata", "Ürün eklenirken bir hata oluştu.");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (hasPermission === null) {
@@ -294,7 +384,17 @@ export default function Scanner() {
             }}
           />
           <View style={styles.overlay}>
-            <View style={styles.scanArea}>
+            <View
+              style={styles.scanArea}
+              onLayout={(e) => {
+                setScanAreaBounds({
+                  x: e.nativeEvent.layout.x,
+                  y: e.nativeEvent.layout.y,
+                  width: e.nativeEvent.layout.width,
+                  height: e.nativeEvent.layout.height,
+                });
+              }}
+            >
               <View style={[styles.corner, styles.topLeft]} />
               <View style={[styles.corner, styles.topRight]} />
               <View style={[styles.corner, styles.bottomLeft]} />
@@ -613,6 +713,146 @@ export default function Scanner() {
         </View>
       </Modal>
 
+      {/* Yeni Ürün Ekleme Modal */}
+      <Modal
+        animationType="slide"
+        transparent
+        visible={addProductVisible}
+        onRequestClose={resetAddProductForm}
+      >
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <View>
+                  <Text style={styles.modalTitle}>Yeni Ürün Ekle</Text>
+                  <Text style={styles.addProductBarcode}>
+                    Barkod: {addProductBarcode || "—"}
+                  </Text>
+                </View>
+                <TouchableOpacity onPress={resetAddProductForm}>
+                  <Ionicons name="close" size={28} color="#333" />
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView style={styles.formScroll}>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Barkod</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Barkod girin"
+                    value={addProductBarcode}
+                    onChangeText={setAddProductBarcode}
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Ürün Adı *</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Örn: Dana Pirzola"
+                    value={addProductName}
+                    onChangeText={setAddProductName}
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Açıklama</Text>
+                  <TextInput
+                    style={[styles.input, styles.textArea]}
+                    placeholder="Ürün açıklaması (isteğe bağlı)"
+                    value={addProductDescription}
+                    onChangeText={setAddProductDescription}
+                    multiline
+                    numberOfLines={3}
+                  />
+                </View>
+
+                <View style={styles.addProductRow}>
+                  <View style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}>
+                    <Text style={styles.inputLabel}>Fiyat (TL) *</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="0.00"
+                      value={addProductPrice}
+                      onChangeText={setAddProductPrice}
+                      keyboardType="decimal-pad"
+                    />
+                  </View>
+                  <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
+                    <Text style={styles.inputLabel}>Stok *</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="0"
+                      value={addProductStock}
+                      onChangeText={setAddProductStock}
+                      keyboardType="numeric"
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Kategori *</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Örn: Et Ürünleri"
+                    value={addProductCategory}
+                    onChangeText={setAddProductCategory}
+                  />
+                  {categories.length > 0 && (
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      style={styles.categoryChips}
+                    >
+                      {categories.map((cat) => (
+                        <TouchableOpacity
+                          key={cat}
+                          style={[
+                            styles.categoryChip,
+                            addProductCategory === cat && styles.categoryChipActive,
+                          ]}
+                          onPress={() =>
+                            setAddProductCategory(addProductCategory === cat ? "" : cat)
+                          }
+                        >
+                          <Text
+                            style={[
+                              styles.categoryChipText,
+                              addProductCategory === cat && styles.categoryChipTextActive,
+                            ]}
+                          >
+                            {cat}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  )}
+                </View>
+
+                <TouchableOpacity
+                  style={styles.submitButton}
+                  onPress={handleSubmitNewProduct}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <ActivityIndicator color="white" />
+                  ) : (
+                    <>
+                      <Ionicons name="checkmark-circle" size={20} color="white" />
+                      <Text style={styles.submitButtonText}>Ürünü Kaydet</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              </ScrollView>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+
       {loading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color="#2ecc71" />
@@ -779,4 +1019,23 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  addProductBarcode: {
+    fontSize: 13,
+    color: "#999",
+    marginTop: 2,
+  },
+  addProductRow: { flexDirection: "row" },
+  categoryChips: { marginTop: 8 },
+  categoryChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 14,
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    marginRight: 8,
+  },
+  categoryChipActive: { backgroundColor: "#2ecc71", borderColor: "#2ecc71" },
+  categoryChipText: { fontSize: 13, color: "#666" },
+  categoryChipTextActive: { color: "#fff", fontWeight: "600" },
 });

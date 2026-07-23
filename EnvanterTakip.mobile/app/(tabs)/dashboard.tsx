@@ -75,12 +75,15 @@ export default function DashboardScreen() {
               <Text style={styles.statValue}>{stats.totalSales}</Text>
               <Text style={styles.statLabel}>Toplam Satış</Text>
             </View>
-            <View style={[styles.statCard, { borderLeftColor: "#f39c12" }]}>
-              <Ionicons name="cash-outline" size={24} color="#f39c12" />
-              <Text style={styles.statValue}>
-                {stats.totalRevenue.toLocaleString("tr-TR")} TL
-              </Text>
-              <Text style={styles.statLabel}>Toplam Gelir</Text>
+            <View style={[styles.statCard, { borderLeftColor: "#6f42c1" }]}>
+              <Ionicons name="time-outline" size={24} color="#6f42c1" />
+              <Text style={styles.statValue}>{stats.todaySalesCount}</Text>
+              <Text style={styles.statLabel}>Bugünkü Satış</Text>
+            </View>
+            <View style={[styles.statCard, { borderLeftColor: "#20c997" }]}>
+              <Ionicons name="layers-outline" size={24} color="#20c997" />
+              <Text style={styles.statValue}>{stats.totalStockCount}</Text>
+              <Text style={styles.statLabel}>Toplam Stok</Text>
             </View>
             <View style={[styles.statCard, { borderLeftColor: "#e74c3c" }]}>
               <Ionicons name="alert-circle-outline" size={24} color="#e74c3c" />
@@ -108,9 +111,6 @@ export default function DashboardScreen() {
                       {item.totalSold} adet satıldı
                     </Text>
                   </View>
-                  <Text style={styles.topProductRevenue}>
-                    {item.totalRevenue.toLocaleString("tr-TR")} TL
-                  </Text>
                 </View>
               ))}
             </View>
@@ -128,9 +128,6 @@ export default function DashboardScreen() {
                     </Text>
                   </View>
                   <View style={{ alignItems: "flex-end" }}>
-                    <Text style={styles.saleTotal}>
-                      {sale.totalPrice.toLocaleString("tr-TR")} TL
-                    </Text>
                     <Text style={styles.saleDate}>
                       {new Date(sale.saleDate).toLocaleDateString("tr-TR")}
                     </Text>
@@ -221,11 +218,6 @@ const styles = StyleSheet.create({
   rankText: { color: "#fff", fontWeight: "bold", fontSize: 13 },
   topProductName: { fontSize: 15, fontWeight: "600", color: "#333" },
   topProductDetail: { fontSize: 12, color: "#95a5a6", marginTop: 2 },
-  topProductRevenue: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#27ae60",
-  },
   saleRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -235,6 +227,5 @@ const styles = StyleSheet.create({
   },
   saleProductName: { fontSize: 15, fontWeight: "600", color: "#333" },
   saleDetail: { fontSize: 12, color: "#95a5a6", marginTop: 2 },
-  saleTotal: { fontSize: 14, fontWeight: "bold", color: "#27ae60" },
-  saleDate: { fontSize: 11, color: "#95a5a6", marginTop: 2 },
+  saleDate: { fontSize: 12, color: "#95a5a6" },
 });

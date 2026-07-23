@@ -28,6 +28,8 @@ export default function Layout() {
             { to: "/", label: "Dashboard", icon: "\u25A6" },
             { to: "/products", label: "Ürünler", icon: "\u25A3" },
             { to: "/sales", label: "Satışlar", icon: "\u25B6" },
+            { to: "/customers", label: "Müşteriler", icon: "\u263A" },
+            { to: "/invoices", label: "Faturalar", icon: "\u2638" },
           ].map((item) => (
             <NavLink
               key={item.to}
