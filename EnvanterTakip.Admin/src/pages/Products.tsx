@@ -177,7 +177,7 @@ export default function Products() {
       {/* Tablo */}
       <div
         style={{
-          background: "#fff",
+          background: "var(--surface)",
           borderRadius: "var(--radius)",
           boxShadow: "var(--shadow)",
           overflow: "hidden",
@@ -185,7 +185,7 @@ export default function Products() {
       >
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
-            <tr style={{ background: "#f8f9fa" }}>
+            <tr style={{ background: "var(--table-header)" }}>
               <th style={thStyle}>Ad</th>
               <th style={thStyle}>Barkod</th>
               <th style={thStyle}>Kategori</th>
@@ -455,7 +455,8 @@ const inputStyle: React.CSSProperties = {
   borderRadius: "var(--radius)",
   fontSize: 14,
   outline: "none",
-  background: "#fff",
+  background: "var(--surface)",
+  color: "var(--text)",
 };
 
 const btnPrimary: React.CSSProperties = {
@@ -469,7 +470,7 @@ const btnPrimary: React.CSSProperties = {
 
 const btnSmall: React.CSSProperties = {
   padding: "5px 12px",
-  background: "#f1f3f5",
+  background: "var(--surface-hover)",
   color: "var(--text)",
   border: "1px solid var(--border)",
   borderRadius: "var(--radius)",
@@ -487,7 +488,7 @@ const overlayStyle: React.CSSProperties = {
 };
 
 const modalStyle: React.CSSProperties = {
-  background: "#fff",
+  background: "var(--surface)",
   borderRadius: "var(--radius)",
   padding: 24,
   width: "100%",

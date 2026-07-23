@@ -2,6 +2,7 @@ import React from "react";
 import { View, StyleSheet, Platform, Pressable, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const TAB_CONFIG: {
   [key: string]: {
@@ -17,6 +18,8 @@ const TAB_CONFIG: {
 };
 
 export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
+  const { colors } = useTheme();
+
   const tabOrder = [
     "dashboard",
     "index",
@@ -53,12 +56,12 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
             <Ionicons
               name={isFocused ? config.iconFocused : config.icon}
               size={24}
-              color={isFocused ? "#2ecc71" : "#95a5a6"}
+              color={isFocused ? colors.primary : colors.textMuted}
             />
             <Text
               style={[
                 styles.tabLabel,
-                { color: isFocused ? "#2ecc71" : "#95a5a6" },
+                { color: isFocused ? colors.primary : colors.textMuted },
               ]}
             >
               {config.label}
@@ -71,7 +74,7 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
 
   return (
     <View style={styles.container} pointerEvents="box-none">
-      <View style={styles.bar}>
+      <View style={[styles.bar, { backgroundColor: colors.surface }]}>
         {/* Sol taraftaki sekmeler eşit bir blok içine alındı */}
         <View style={styles.sideContainer}>{leftTabs.map(renderTab)}</View>
 
@@ -90,6 +93,7 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
                 style={[
                   styles.centerButton,
                   styles.centerShadow,
+                  { backgroundColor: colors.primary, borderColor: colors.surface },
                   { transform: [{ scale: pressed ? 0.9 : 1 }] },
                 ]}
               >
@@ -113,7 +117,6 @@ const styles = StyleSheet.create({
   bar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#ffffff",
     width: "100%",
     height: 64,
     borderRadius: 32,
@@ -125,12 +128,12 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   sideContainer: {
-    flex: 1, // Sol ve sağ grupların her birinin eşit genişlikte (%50-%50 gibi) olmasını sağlar
+    flex: 1,
     flexDirection: "row",
     height: "100%",
   },
   centerPlaceholder: {
-    width: 70, // 64px olan tarayıcı butonunun bar üzerinde rahat oturması için sabit boşluk
+    width: 70,
   },
   tab: {
     flex: 1,
@@ -159,11 +162,9 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: "#2ecc71",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 4,
-    borderColor: "#f8f9fa",
   },
   centerShadow: {
     shadowColor: "#2ecc71",

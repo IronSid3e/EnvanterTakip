@@ -22,8 +22,10 @@ import {
   apiPut,
   apiDelete,
 } from "@/config/api";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function Scanner() {
+  const { colors } = useTheme();
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanned, setScanned] = useState(false);
   const [scanning, setScanning] = useState(true);
@@ -344,19 +346,19 @@ export default function Scanner() {
 
   if (hasPermission === null) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#2ecc71" />
-        <Text style={styles.text}>Kamera izni bekleniyor...</Text>
+      <View style={[styles.centered, { backgroundColor: colors.bg }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={[styles.text, { color: colors.textMuted }]}>Kamera izni bekleniyor...</Text>
       </View>
     );
   }
 
   if (hasPermission === false) {
     return (
-      <View style={styles.centered}>
-        <Ionicons name="camera-outline" size={64} color="#999" />
-        <Text style={styles.text}>Kamera erişim izni verilmedi</Text>
-        <Text style={[styles.text, { fontSize: 13, marginTop: 4 }]}>
+      <View style={[styles.centered, { backgroundColor: colors.bg }]}>
+        <Ionicons name="camera-outline" size={64} color={colors.textMuted} />
+        <Text style={[styles.text, { color: colors.textMuted }]}>Kamera erişim izni verilmedi</Text>
+        <Text style={[styles.text, { fontSize: 13, marginTop: 4, color: colors.textMuted }]}>
           Ayarlardan kamera iznini açın
         </Text>
       </View>
@@ -404,9 +406,9 @@ export default function Scanner() {
           </View>
         </>
       ) : (
-        <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#2ecc71" />
-          <Text style={styles.text}>Ürün Aranıyor </Text>
+        <View style={[styles.centered, { backgroundColor: colors.bg }]}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.text, { color: colors.textMuted }]}>Ürün Aranıyor </Text>
         </View>
       )}
 
@@ -418,70 +420,65 @@ export default function Scanner() {
         onRequestClose={() => setDetailsModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Ürün Detayları</Text>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: colors.divider }]}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>Ürün Detayları</Text>
               <TouchableOpacity onPress={resetScanner}>
-                <Ionicons name="close" size={28} color="#333" />
+                <Ionicons name="close" size={28} color={colors.text} />
               </TouchableOpacity>
             </View>
 
             {product && (
               <ScrollView style={styles.detailsScroll}>
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Barkod</Text>
-                  <Text style={styles.detailValue}>
+                <View style={[styles.detailRow, { borderBottomColor: colors.divider }]}>
+                  <Text style={[styles.detailLabel, { color: colors.textMuted }]}>Barkod</Text>
+                  <Text style={[styles.detailValue, { color: colors.text }]}>
                     {product.barcode || "—"}
                   </Text>
                 </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Ürün Adı</Text>
-                  <Text style={styles.detailValue}>{product.name}</Text>
+                <View style={[styles.detailRow, { borderBottomColor: colors.divider }]}>
+                  <Text style={[styles.detailLabel, { color: colors.textMuted }]}>Ürün Adı</Text>
+                  <Text style={[styles.detailValue, { color: colors.text }]}>{product.name}</Text>
                 </View>
                 {product.description ? (
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Açıklama</Text>
-                    <Text style={styles.detailValue}>
+                  <View style={[styles.detailRow, { borderBottomColor: colors.divider }]}>
+                    <Text style={[styles.detailLabel, { color: colors.textMuted }]}>Açıklama</Text>
+                    <Text style={[styles.detailValue, { color: colors.text }]}>
                       {product.description}
                     </Text>
                   </View>
                 ) : null}
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Fiyat</Text>
-                  <Text
-                    style={[
-                      styles.detailValue,
-                      { color: "#27ae60", fontSize: 18, fontWeight: "bold" },
-                    ]}
-                  >
+                <View style={[styles.detailRow, { borderBottomColor: colors.divider }]}>
+                  <Text style={[styles.detailLabel, { color: colors.textMuted }]}>Fiyat</Text>
+                  <Text style={[styles.detailValue, { color: colors.success, fontSize: 18, fontWeight: "bold" }]}>
                     {product.price.toLocaleString("tr-TR")} TL
                   </Text>
                 </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Stok</Text>
+                <View style={[styles.detailRow, { borderBottomColor: colors.divider }]}>
+                  <Text style={[styles.detailLabel, { color: colors.textMuted }]}>Stok</Text>
                   <Text
                     style={[
                       styles.detailValue,
                       product.stock === 0
-                        ? { color: "#999" }
+                        ? { color: colors.textMuted }
                         : product.stock < 10
-                          ? styles.lowStock
-                          : styles.normalStock,
+                          ? { color: colors.danger, fontWeight: "bold" as const }
+                          : { color: colors.success },
                     ]}
                   >
                     {product.stock === 0 ? "Tükendi" : `${product.stock} adet`}
                   </Text>
                 </View>
                 {product.category ? (
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Kategori</Text>
-                    <Text style={styles.detailValue}>{product.category}</Text>
+                  <View style={[styles.detailRow, { borderBottomColor: colors.divider }]}>
+                    <Text style={[styles.detailLabel, { color: colors.textMuted }]}>Kategori</Text>
+                    <Text style={[styles.detailValue, { color: colors.text }]}>{product.category}</Text>
                   </View>
                 ) : null}
 
                 <View style={styles.actionButtons}>
                   <TouchableOpacity
-                    style={[styles.actionButton, styles.sellButton]}
+                    style={[styles.actionButton, { backgroundColor: colors.primary }]}
                     onPress={() => {
                       setDetailsModalVisible(false);
                       setSaleModalVisible(true);
@@ -492,7 +489,7 @@ export default function Scanner() {
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    style={[styles.actionButton, styles.updateButton]}
+                    style={[styles.actionButton, { backgroundColor: "#3498db" }]}
                     onPress={() => {
                       setDetailsModalVisible(false);
                       setUpdateModalVisible(true);
@@ -503,7 +500,7 @@ export default function Scanner() {
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    style={[styles.actionButton, styles.deleteButton]}
+                    style={[styles.actionButton, { backgroundColor: colors.danger }]}
                     onPress={deleteProduct}
                   >
                     <Ionicons name="trash" size={20} color="white" />
@@ -514,7 +511,7 @@ export default function Scanner() {
             )}
 
             <TouchableOpacity
-              style={styles.scanAgainButton}
+              style={[styles.scanAgainButton, { backgroundColor: colors.primary }]}
               onPress={resetScanner}
             >
               <Ionicons name="scan" size={20} color="white" />
@@ -532,42 +529,44 @@ export default function Scanner() {
         onRequestClose={() => setSaleModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Ürün Satışı</Text>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: colors.divider }]}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>Ürün Satışı</Text>
               <TouchableOpacity onPress={() => setSaleModalVisible(false)}>
-                <Ionicons name="close" size={28} color="#333" />
+                <Ionicons name="close" size={28} color={colors.text} />
               </TouchableOpacity>
             </View>
 
             <ScrollView style={styles.formScroll}>
               {product && (
                 <>
-                  <View style={styles.saleProductInfo}>
-                    <Text style={styles.saleProductName}>{product.name}</Text>
-                    <Text style={styles.saleProductPrice}>
+                  <View style={[styles.saleProductInfo, { backgroundColor: colors.surfaceHover }]}>
+                    <Text style={[styles.saleProductName, { color: colors.text }]}>{product.name}</Text>
+                    <Text style={[styles.saleProductPrice, { color: colors.success }]}>
                       {product.price.toLocaleString("tr-TR")} TL
                     </Text>
-                    <Text style={styles.saleProductStock}>
+                    <Text style={[styles.saleProductStock, { color: colors.textSecondary }]}>
                       Mevcut Stok: {product.stock} adet
                     </Text>
                   </View>
 
                   <View style={styles.inputGroup}>
-                    <Text style={styles.inputLabel}>Satıcı Adı *</Text>
+                    <Text style={[styles.inputLabel, { color: colors.text }]}>Satıcı Adı *</Text>
                     <TextInput
-                      style={styles.input}
+                      style={[styles.input, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg, color: colors.text }]}
                       placeholder="Satıcı adını girin"
+                      placeholderTextColor={colors.textMuted}
                       value={sellerName}
                       onChangeText={setSellerName}
                     />
                   </View>
 
                   <View style={styles.inputGroup}>
-                    <Text style={styles.inputLabel}>Miktar *</Text>
+                    <Text style={[styles.inputLabel, { color: colors.text }]}>Miktar *</Text>
                     <TextInput
-                      style={styles.input}
+                      style={[styles.input, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg, color: colors.text }]}
                       placeholder="Satılacak miktar"
+                      placeholderTextColor={colors.textMuted}
                       value={saleQuantity}
                       onChangeText={setSaleQuantity}
                       keyboardType="numeric"
@@ -575,18 +574,19 @@ export default function Scanner() {
                   </View>
 
                   <View style={styles.inputGroup}>
-                    <Text style={styles.inputLabel}>Satış Tarihi *</Text>
+                    <Text style={[styles.inputLabel, { color: colors.text }]}>Satış Tarihi *</Text>
                     <TextInput
-                      style={styles.input}
+                      style={[styles.input, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg, color: colors.text }]}
                       placeholder="YYYY-AA-GG"
+                      placeholderTextColor={colors.textMuted}
                       value={saleDate}
                       onChangeText={setSaleDate}
                     />
                   </View>
 
-                  <View style={styles.totalPriceContainer}>
-                    <Text style={styles.totalPriceLabel}>Toplam Tutar</Text>
-                    <Text style={styles.totalPriceValue}>
+                  <View style={[styles.totalPriceContainer, { backgroundColor: colors.surfaceHover, borderColor: colors.border }]}>
+                    <Text style={[styles.totalPriceLabel, { color: colors.textSecondary }]}>Toplam Tutar</Text>
+                    <Text style={[styles.totalPriceValue, { color: colors.success }]}>
                       {(
                         product.price * parseInt(saleQuantity || "0")
                       ).toLocaleString("tr-TR", {
@@ -597,7 +597,7 @@ export default function Scanner() {
                   </View>
 
                   <TouchableOpacity
-                    style={styles.submitButton}
+                    style={[styles.submitButton, { backgroundColor: colors.primary }]}
                     onPress={sellProduct}
                     disabled={loading}
                   >
@@ -631,30 +631,32 @@ export default function Scanner() {
         onRequestClose={() => setUpdateModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Ürünü Güncelle</Text>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: colors.divider }]}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>Ürünü Güncelle</Text>
               <TouchableOpacity onPress={() => setUpdateModalVisible(false)}>
-                <Ionicons name="close" size={28} color="#333" />
+                <Ionicons name="close" size={28} color={colors.text} />
               </TouchableOpacity>
             </View>
 
             <ScrollView style={styles.formScroll}>
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Ürün Adı *</Text>
+                <Text style={[styles.inputLabel, { color: colors.text }]}>Ürün Adı *</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg, color: colors.text }]}
                   placeholder="Ürün adı"
+                  placeholderTextColor={colors.textMuted}
                   value={updateName}
                   onChangeText={setUpdateName}
                 />
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Açıklama</Text>
+                <Text style={[styles.inputLabel, { color: colors.text }]}>Açıklama</Text>
                 <TextInput
-                  style={[styles.input, styles.textArea]}
+                  style={[styles.input, styles.textArea, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg, color: colors.text }]}
                   placeholder="Ürün açıklaması"
+                  placeholderTextColor={colors.textMuted}
                   value={updateDescription}
                   onChangeText={setUpdateDescription}
                   multiline
@@ -663,10 +665,11 @@ export default function Scanner() {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Fiyat (TL) *</Text>
+                <Text style={[styles.inputLabel, { color: colors.text }]}>Fiyat (TL) *</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg, color: colors.text }]}
                   placeholder="Fiyat"
+                  placeholderTextColor={colors.textMuted}
                   value={updatePrice}
                   onChangeText={setUpdatePrice}
                   keyboardType="decimal-pad"
@@ -674,10 +677,11 @@ export default function Scanner() {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Stok Miktarı *</Text>
+                <Text style={[styles.inputLabel, { color: colors.text }]}>Stok Miktarı *</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg, color: colors.text }]}
                   placeholder="Stok"
+                  placeholderTextColor={colors.textMuted}
                   value={updateStock}
                   onChangeText={setUpdateStock}
                   keyboardType="numeric"
@@ -685,17 +689,18 @@ export default function Scanner() {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Kategori</Text>
+                <Text style={[styles.inputLabel, { color: colors.text }]}>Kategori</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg, color: colors.text }]}
                   placeholder="Kategori"
+                  placeholderTextColor={colors.textMuted}
                   value={updateCategory}
                   onChangeText={setUpdateCategory}
                 />
               </View>
 
               <TouchableOpacity
-                style={styles.submitButton}
+                style={[styles.submitButton, { backgroundColor: colors.primary }]}
                 onPress={updateProduct}
                 disabled={loading}
               >
@@ -725,45 +730,48 @@ export default function Scanner() {
           behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
           <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
+            <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+              <View style={[styles.modalHeader, { borderBottomColor: colors.divider }]}>
                 <View>
-                  <Text style={styles.modalTitle}>Yeni Ürün Ekle</Text>
-                  <Text style={styles.addProductBarcode}>
+                  <Text style={[styles.modalTitle, { color: colors.text }]}>Yeni Ürün Ekle</Text>
+                  <Text style={[styles.addProductBarcode, { color: colors.textMuted }]}>
                     Barkod: {addProductBarcode || "—"}
                   </Text>
                 </View>
                 <TouchableOpacity onPress={resetAddProductForm}>
-                  <Ionicons name="close" size={28} color="#333" />
+                  <Ionicons name="close" size={28} color={colors.text} />
                 </TouchableOpacity>
               </View>
 
               <ScrollView style={styles.formScroll}>
                 <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Barkod</Text>
+                  <Text style={[styles.inputLabel, { color: colors.text }]}>Barkod</Text>
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg, color: colors.text }]}
                     placeholder="Barkod girin"
+                    placeholderTextColor={colors.textMuted}
                     value={addProductBarcode}
                     onChangeText={setAddProductBarcode}
                   />
                 </View>
 
                 <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Ürün Adı *</Text>
+                  <Text style={[styles.inputLabel, { color: colors.text }]}>Ürün Adı *</Text>
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg, color: colors.text }]}
                     placeholder="Örn: Dana Pirzola"
+                    placeholderTextColor={colors.textMuted}
                     value={addProductName}
                     onChangeText={setAddProductName}
                   />
                 </View>
 
                 <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Açıklama</Text>
+                  <Text style={[styles.inputLabel, { color: colors.text }]}>Açıklama</Text>
                   <TextInput
-                    style={[styles.input, styles.textArea]}
+                    style={[styles.input, styles.textArea, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg, color: colors.text }]}
                     placeholder="Ürün açıklaması (isteğe bağlı)"
+                    placeholderTextColor={colors.textMuted}
                     value={addProductDescription}
                     onChangeText={setAddProductDescription}
                     multiline
@@ -773,20 +781,22 @@ export default function Scanner() {
 
                 <View style={styles.addProductRow}>
                   <View style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}>
-                    <Text style={styles.inputLabel}>Fiyat (TL) *</Text>
+                    <Text style={[styles.inputLabel, { color: colors.text }]}>Fiyat (TL) *</Text>
                     <TextInput
-                      style={styles.input}
+                      style={[styles.input, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg, color: colors.text }]}
                       placeholder="0.00"
+                      placeholderTextColor={colors.textMuted}
                       value={addProductPrice}
                       onChangeText={setAddProductPrice}
                       keyboardType="decimal-pad"
                     />
                   </View>
                   <View style={[styles.inputGroup, { flex: 1, marginLeft: 8 }]}>
-                    <Text style={styles.inputLabel}>Stok *</Text>
+                    <Text style={[styles.inputLabel, { color: colors.text }]}>Stok *</Text>
                     <TextInput
-                      style={styles.input}
+                      style={[styles.input, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg, color: colors.text }]}
                       placeholder="0"
+                      placeholderTextColor={colors.textMuted}
                       value={addProductStock}
                       onChangeText={setAddProductStock}
                       keyboardType="numeric"
@@ -795,10 +805,11 @@ export default function Scanner() {
                 </View>
 
                 <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Kategori *</Text>
+                  <Text style={[styles.inputLabel, { color: colors.text }]}>Kategori *</Text>
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg, color: colors.text }]}
                     placeholder="Örn: Et Ürünleri"
+                    placeholderTextColor={colors.textMuted}
                     value={addProductCategory}
                     onChangeText={setAddProductCategory}
                   />
@@ -813,7 +824,8 @@ export default function Scanner() {
                           key={cat}
                           style={[
                             styles.categoryChip,
-                            addProductCategory === cat && styles.categoryChipActive,
+                            { backgroundColor: colors.chipBg, borderColor: colors.chipBorder },
+                            addProductCategory === cat && { backgroundColor: colors.primary, borderColor: colors.primary },
                           ]}
                           onPress={() =>
                             setAddProductCategory(addProductCategory === cat ? "" : cat)
@@ -822,7 +834,8 @@ export default function Scanner() {
                           <Text
                             style={[
                               styles.categoryChipText,
-                              addProductCategory === cat && styles.categoryChipTextActive,
+                              { color: colors.textSecondary },
+                              addProductCategory === cat && { color: colors.primaryText, fontWeight: "600" },
                             ]}
                           >
                             {cat}
@@ -834,7 +847,7 @@ export default function Scanner() {
                 </View>
 
                 <TouchableOpacity
-                  style={styles.submitButton}
+                  style={[styles.submitButton, { backgroundColor: colors.primary }]}
                   onPress={handleSubmitNewProduct}
                   disabled={loading}
                 >
@@ -855,7 +868,7 @@ export default function Scanner() {
 
       {loading && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#2ecc71" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       )}
     </View>
@@ -868,9 +881,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
   },
-  text: { fontSize: 16, marginTop: 12, color: "#666" },
+  text: { fontSize: 16, marginTop: 12 },
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
@@ -900,7 +912,6 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalContent: {
-    backgroundColor: "white",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingTop: 20,
@@ -913,20 +924,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
   },
-  modalTitle: { fontSize: 20, fontWeight: "bold", color: "#333" },
+  modalTitle: { fontSize: 20, fontWeight: "bold" },
   detailsScroll: { padding: 20 },
   detailRow: {
     marginBottom: 14,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
   },
-  detailLabel: { fontSize: 13, color: "#999", marginBottom: 4 },
-  detailValue: { fontSize: 16, color: "#333", fontWeight: "500" },
-  lowStock: { color: "#FF3B30", fontWeight: "bold" },
-  normalStock: { color: "#34C759" },
+  detailLabel: { fontSize: 13, marginBottom: 4 },
+  detailValue: { fontSize: 16, fontWeight: "500" },
   actionButtons: { marginTop: 20, gap: 10 },
   actionButton: {
     flexDirection: "row",
@@ -936,15 +943,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     gap: 8,
   },
-  sellButton: { backgroundColor: "#2ecc71" },
-  updateButton: { backgroundColor: "#3498db" },
-  deleteButton: { backgroundColor: "#e74c3c" },
   actionButtonText: { color: "white", fontSize: 16, fontWeight: "600" },
   scanAgainButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#2ecc71",
     marginHorizontal: 20,
     marginVertical: 20,
     paddingVertical: 14,
@@ -954,7 +957,6 @@ const styles = StyleSheet.create({
   scanAgainText: { color: "white", fontSize: 16, fontWeight: "600" },
   formScroll: { padding: 20 },
   saleProductInfo: {
-    backgroundColor: "#f8f9fa",
     padding: 16,
     borderRadius: 10,
     marginBottom: 20,
@@ -962,51 +964,43 @@ const styles = StyleSheet.create({
   saleProductName: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#333",
     marginBottom: 6,
   },
   saleProductPrice: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#27ae60",
     marginBottom: 4,
   },
-  saleProductStock: { fontSize: 14, color: "#666" },
+  saleProductStock: { fontSize: 14 },
   inputGroup: { marginBottom: 16 },
   inputLabel: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#333",
     marginBottom: 6,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ddd",
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     fontSize: 16,
-    backgroundColor: "white",
   },
   textArea: { height: 80, textAlignVertical: "top" },
   totalPriceContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#f0faf0",
     padding: 16,
     borderRadius: 10,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: "#d4edda",
   },
-  totalPriceLabel: { fontSize: 16, fontWeight: "600", color: "#666" },
-  totalPriceValue: { fontSize: 22, fontWeight: "bold", color: "#27ae60" },
+  totalPriceLabel: { fontSize: 16, fontWeight: "600" },
+  totalPriceValue: { fontSize: 22, fontWeight: "bold" },
   submitButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#2ecc71",
     paddingVertical: 14,
     borderRadius: 10,
     gap: 8,
@@ -1021,7 +1015,6 @@ const styles = StyleSheet.create({
   },
   addProductBarcode: {
     fontSize: 13,
-    color: "#999",
     marginTop: 2,
   },
   addProductRow: { flexDirection: "row" },
@@ -1030,12 +1023,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 14,
-    backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: "#ddd",
     marginRight: 8,
   },
-  categoryChipActive: { backgroundColor: "#2ecc71", borderColor: "#2ecc71" },
-  categoryChipText: { fontSize: 13, color: "#666" },
-  categoryChipTextActive: { color: "#fff", fontWeight: "600" },
+  categoryChipText: { fontSize: 13 },
 });

@@ -10,8 +10,11 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { ENDPOINTS, Sale, PaginatedResponse, apiGet } from "@/config/api";
+import { useTheme } from "@/contexts/ThemeContext";
+import SettingsMenu from "@/components/SettingsMenu";
 
 export default function SalesScreen() {
+  const { colors } = useTheme();
   const [sales, setSales] = useState<Sale[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -44,24 +47,24 @@ export default function SalesScreen() {
   };
 
   const renderSale = ({ item }: { item: Sale }) => (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: colors.cardBg }]}>
       <View style={styles.cardHeader}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.productName}>{item.productName}</Text>
-          <Text style={styles.sellerName}>{item.sellerName}</Text>
+          <Text style={[styles.productName, { color: colors.text }]}>{item.productName}</Text>
+          <Text style={[styles.sellerName, { color: colors.textMuted }]}>{item.sellerName}</Text>
         </View>
       </View>
 
-      <View style={styles.divider} />
+      <View style={[styles.divider, { backgroundColor: colors.divider }]} />
 
       <View style={styles.cardFooter}>
         <View style={styles.infoChip}>
-          <Ionicons name="layers-outline" size={14} color="#666" />
-          <Text style={styles.infoText}>{item.quantity} adet</Text>
+          <Ionicons name="layers-outline" size={14} color={colors.textSecondary} />
+          <Text style={[styles.infoText, { color: colors.textSecondary }]}>{item.quantity} adet</Text>
         </View>
         <View style={styles.infoChip}>
-          <Ionicons name="calendar-outline" size={14} color="#666" />
-          <Text style={styles.infoText}>
+          <Ionicons name="calendar-outline" size={14} color={colors.textSecondary} />
+          <Text style={[styles.infoText, { color: colors.textSecondary }]}>
             {new Date(item.saleDate).toLocaleDateString("tr-TR")}
           </Text>
         </View>
@@ -70,14 +73,17 @@ export default function SalesScreen() {
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Satış Geçmişi</Text>
-        <Text style={styles.headerSubtitle}>{sales.length} satış kaydı</Text>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+      <View style={[styles.header, { backgroundColor: colors.headerBg, borderBottomColor: colors.headerBorder }]}>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Satış Geçmişi</Text>
+          <Text style={[styles.headerSubtitle, { color: colors.textMuted }]}>{sales.length} satış kaydı</Text>
+        </View>
+        <SettingsMenu />
       </View>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#2ecc71" style={styles.center} />
+        <ActivityIndicator size="large" color={colors.primary} style={styles.center} />
       ) : (
         <FlatList
           data={sales}
@@ -85,12 +91,12 @@ export default function SalesScreen() {
           renderItem={renderSale}
           contentContainerStyle={styles.listContent}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2ecc71" />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
           }
           ListEmptyComponent={
             <View style={styles.center}>
-              <Ionicons name="receipt-outline" size={50} color="#ccc" />
-              <Text style={styles.emptyText}>Henüz satış kaydı bulunmuyor.</Text>
+              <Ionicons name="receipt-outline" size={50} color={colors.textMuted} />
+              <Text style={[styles.emptyText, { color: colors.textMuted }]}>Henüz satış kaydı bulunmuyor.</Text>
             </View>
           }
         />
@@ -100,17 +106,18 @@ export default function SalesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f4f7f6" },
+  container: { flex: 1 },
   header: {
     paddingTop: 60,
     paddingHorizontal: 20,
     paddingBottom: 12,
-    backgroundColor: "#fff",
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
-  headerTitle: { fontSize: 22, fontWeight: "bold", color: "#2c3e50" },
-  headerSubtitle: { fontSize: 13, color: "#95a5a6", marginTop: 2 },
+  headerTitle: { fontSize: 22, fontWeight: "bold" },
+  headerSubtitle: { fontSize: 13, marginTop: 2 },
   center: {
     flex: 1,
     justifyContent: "center",
@@ -119,7 +126,6 @@ const styles = StyleSheet.create({
   },
   listContent: { padding: 15, paddingBottom: 100 },
   card: {
-    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -134,16 +140,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-start",
   },
-  productName: { fontSize: 16, fontWeight: "700", color: "#333" },
-  sellerName: { fontSize: 13, color: "#95a5a6", marginTop: 2 },
-  divider: { height: 1, backgroundColor: "#f0f0f0", marginVertical: 10 },
+  productName: { fontSize: 16, fontWeight: "700" },
+  sellerName: { fontSize: 13, marginTop: 2 },
+  divider: { height: 1, marginVertical: 10 },
   cardFooter: { flexDirection: "row", gap: 16 },
   infoChip: { flexDirection: "row", alignItems: "center", gap: 4 },
-  infoText: { fontSize: 13, color: "#666" },
+  infoText: { fontSize: 13 },
   emptyText: {
     textAlign: "center",
     marginTop: 10,
-    color: "#95a5a6",
     fontSize: 15,
   },
 });

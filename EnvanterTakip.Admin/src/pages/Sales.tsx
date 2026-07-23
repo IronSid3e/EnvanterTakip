@@ -112,7 +112,7 @@ export default function Sales() {
 
       <div
         style={{
-          background: "#fff",
+          background: "var(--surface)",
           borderRadius: "var(--radius)",
           boxShadow: "var(--shadow)",
           overflow: "hidden",
@@ -120,7 +120,7 @@ export default function Sales() {
       >
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
-            <tr style={{ background: "#f8f9fa" }}>
+            <tr style={{ background: "var(--table-header)" }}>
               <th style={thStyle}>Ürün</th>
               <th style={thStyle}>Satıcı</th>
               <th style={{ ...thStyle, textAlign: "right" }}>Adet</th>
@@ -208,12 +208,13 @@ const inputStyle: React.CSSProperties = {
   borderRadius: "var(--radius)",
   fontSize: 14,
   outline: "none",
-  background: "#fff",
+  background: "var(--surface)",
+  color: "var(--text)",
 };
 
 const btnSmall: React.CSSProperties = {
   padding: "5px 12px",
-  background: "#f1f3f5",
+  background: "var(--surface-hover)",
   color: "var(--text)",
   border: "1px solid var(--border)",
   borderRadius: "var(--radius)",

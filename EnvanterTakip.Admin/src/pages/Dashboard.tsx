@@ -7,7 +7,7 @@ import {
 } from "../config/api";
 
 const cardStyle = (color: string): React.CSSProperties => ({
-  background: "#fff",
+  background: "var(--surface)",
   borderRadius: "var(--radius)",
   padding: "20px 24px",
   boxShadow: "var(--shadow)",
@@ -80,13 +80,13 @@ export default function Dashboard() {
       </div>
 
       <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
-        <div style={{ flex: "1 1 400px", background: "#fff", borderRadius: "var(--radius)", boxShadow: "var(--shadow)" }}>
+        <div style={{ flex: "1 1 400px", background: "var(--surface)", borderRadius: "var(--radius)", boxShadow: "var(--shadow)" }}>
           <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)", fontWeight: 600, fontSize: 15 }}>
             Son Satışlar
           </div>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ background: "#f8f9fa" }}>
+              <tr style={{ background: "var(--table-header)" }}>
                 <th style={thStyle}>Ürün</th>
                 <th style={thStyle}>Satıcı</th>
                 <th style={thStyle}>Adet</th>
@@ -113,13 +113,13 @@ export default function Dashboard() {
           </table>
         </div>
 
-        <div style={{ flex: "1 1 300px", background: "#fff", borderRadius: "var(--radius)", boxShadow: "var(--shadow)" }}>
+        <div style={{ flex: "1 1 300px", background: "var(--surface)", borderRadius: "var(--radius)", boxShadow: "var(--shadow)" }}>
           <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)", fontWeight: 600, fontSize: 15 }}>
             En Çok Satan Ürünler
           </div>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ background: "#f8f9fa" }}>
+              <tr style={{ background: "var(--table-header)" }}>
                 <th style={thStyle}>Ürün</th>
                 <th style={thStyle}>Satılan (Adet)</th>
               </tr>

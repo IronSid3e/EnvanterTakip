@@ -1,5 +1,3 @@
-import Constants from "expo-constants";
-
 const API_IP = "192.168.1.243";
 const API_PORT = 5279;
 
@@ -16,15 +14,8 @@ export const ENDPOINTS = {
   salesDashboard: `${API_BASE_URL}/sales/dashboard`,
   stockEntries: `${API_BASE_URL}/stockentries`,
   stockEntriesById: (id: number) => `${API_BASE_URL}/stockentries/${id}`,
-  customers: `${API_BASE_URL}/customers`,
-  customersById: (id: number) => `${API_BASE_URL}/customers/${id}`,
-  invoices: `${API_BASE_URL}/invoices`,
-  invoicesById: (id: number) => `${API_BASE_URL}/invoices/${id}`,
-  invoicesPdf: (id: number) => `${API_BASE_URL}/invoices/${id}/pdf`,
-  invoicesStatus: (id: number) => `${API_BASE_URL}/invoices/${id}/status`,
 };
 
-// API Response tipleri
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
@@ -89,43 +80,6 @@ export interface DashboardStats {
     productName: string;
     totalSold: number;
   }[];
-}
-
-export interface Customer {
-  id: number;
-  type: string;
-  name: string;
-  taxNumber: string | null;
-  taxOffice: string | null;
-  nationalId: string | null;
-  address: string | null;
-  phone: string | null;
-  createdAt: string;
-}
-
-export interface Invoice {
-  id: number;
-  invoiceNumber: string;
-  saleId: number;
-  productName: string;
-  quantity: number;
-  unitPrice: number;
-  saleTotalPrice: number;
-  customerId: number;
-  customerName: string;
-  customerType: string;
-  customerTaxNumber: string | null;
-  customerTaxOffice: string | null;
-  customerNationalId: string | null;
-  customerAddress: string | null;
-  customerPhone: string | null;
-  invoiceDate: string;
-  taxRate: number;
-  taxAmount: number;
-  totalAmount: number;
-  status: string;
-  notes: string | null;
-  createdAt: string;
 }
 
 async function handleResponse<T>(response: Response): Promise<ApiResponse<T>> {

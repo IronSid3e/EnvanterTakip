@@ -9,12 +9,8 @@ export const ENDPOINTS = {
   sales: `${API_BASE_URL}/sales`,
   salesById: (id: number) => `${API_BASE_URL}/sales/${id}`,
   salesDashboard: `${API_BASE_URL}/sales/dashboard`,
-  customers: `${API_BASE_URL}/customers`,
-  customersById: (id: number) => `${API_BASE_URL}/customers/${id}`,
-  invoices: `${API_BASE_URL}/invoices`,
-  invoicesById: (id: number) => `${API_BASE_URL}/invoices/${id}`,
-  invoicesPdf: (id: number) => `${API_BASE_URL}/invoices/${id}/pdf`,
-  invoicesStatus: (id: number) => `${API_BASE_URL}/invoices/${id}/status`,
+  stockEntries: `${API_BASE_URL}/stockentries`,
+  stockEntriesById: (id: number) => `${API_BASE_URL}/stockentries/${id}`,
 };
 
 export interface ApiResponse<T> {
@@ -54,6 +50,17 @@ export interface Sale {
   quantity: number;
   unitPrice: number;
   saleDate: string;
+  createdAt: string;
+}
+
+export interface StockEntry {
+  id: number;
+  productId: number;
+  productName: string;
+  supplierName: string;
+  quantity: number;
+  entryDate: string;
+  note: string | null;
   createdAt: string;
 }
 
@@ -102,60 +109,11 @@ export interface SaleFilterParams {
   sellerName?: string;
 }
 
-export interface Customer {
-  id: number;
-  type: string;
-  name: string;
-  taxNumber: string | null;
-  taxOffice: string | null;
-  nationalId: string | null;
-  address: string | null;
-  phone: string | null;
-  createdAt: string;
-}
-
-export interface CustomerFilterParams {
+export interface StockEntryFilterParams {
   page?: number;
   pageSize?: number;
-  search?: string;
-  sortBy?: string;
-  sortDescending?: boolean;
-  type?: string;
-}
-
-export interface Invoice {
-  id: number;
-  invoiceNumber: string;
-  saleId: number;
-  productName: string;
-  quantity: number;
-  unitPrice: number;
-  saleTotalPrice: number;
-  customerId: number;
-  customerName: string;
-  customerType: string;
-  customerTaxNumber: string | null;
-  customerTaxOffice: string | null;
-  customerNationalId: string | null;
-  customerAddress: string | null;
-  customerPhone: string | null;
-  invoiceDate: string;
-  taxRate: number;
-  taxAmount: number;
-  totalAmount: number;
-  status: string;
-  notes: string | null;
-  createdAt: string;
-}
-
-export interface InvoiceFilterParams {
-  page?: number;
-  pageSize?: number;
-  search?: string;
-  sortBy?: string;
-  sortDescending?: boolean;
-  status?: string;
-  customerId?: number;
+  productId?: number;
+  supplierName?: string;
   startDate?: string;
   endDate?: string;
 }
